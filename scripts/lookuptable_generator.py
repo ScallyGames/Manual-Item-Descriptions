@@ -156,20 +156,6 @@ for pill in pillMetadatas:
 newfile.write("}\n\n")
 
 
-newfile.write("--The name of each entity, for use in glitched item descriptions\n")
-newfile.write("EID.XMLEntityNames = {")
-tempString = ""
-counter = 0
-for entity in entityNames:
-    counter = counter+1
-    tempString += "[\""+entity['id']+"\"] = \""+entity['name']+"\", "
-    if counter > 100:
-        newfile.write(tempString+"\n")
-        tempString =""
-        counter = 0
-
-newfile.write("}\n\n")
-
 newfile.close()
 print("SUCCESS")
 

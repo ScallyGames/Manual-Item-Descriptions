@@ -19,11 +19,6 @@ if not __eidPillDescriptions then
 end
 setmetatable(__eidPillDescriptions,
 	{ __newindex = function(_, k, v) EID:addPill(k, v) end })
-if not __eidItemTransformations then
-	__eidItemTransformations = {}
-end
-setmetatable(__eidItemTransformations,
-	{ __newindex = function(_, k, v) EID:assignTransformation("collectible", k, v) end })
 if not __eidEntityDescriptions then
 	__eidEntityDescriptions = {}
 end
@@ -153,86 +148,6 @@ function EID:addPillMetadata(id, mimicCharge, class)
 	}
 end
 
--- Adds a character specific description for the item "Birthright". Optional parameters: playerName, language
-function EID:addBirthright(characterId, description, playerName, language)
-	playerName = playerName or nil
-	language = language or "en_us"
-	EID:CreateDescriptionTableIfMissing("birthright", language)
-	EID.descriptions[language].birthright[characterId + 1] = {playerName, "", description}
-end
-
--- Creates a new transformation with a given unique name and a display name
-function EID:createTransformation(uniqueName, displayName, language)
-	language = language or "en_us"
-	if EID.CustomTransformations[uniqueName] == nil then
-		EID.CustomTransformations[uniqueName] = {}
-	end
-	EID.CustomTransformations[uniqueName][language] = displayName
-end
-
--- Assigns transformations to an entity (Adds to existing transformations)
--- valid target types: [collectible, trinket, card, pill, entity]
--- when type = entity, targetIdentifier must be in the format "ID.Variant.subtype". for any other type, it can just be the id
--- EXAMPLE: EID:assignTransformation("collectible", 1, "My Transformation")
-function EID:assignTransformation(targetType, targetIdentifier, transformationString)
-	local entryID = EID:getIDVariantString(targetType)
-	if entryID ~= nil then
-		entryID = entryID.."."..targetIdentifier
-	else
-		entryID = targetIdentifier
-	end
-	EID:removeEntryFromString(EID.CustomTransformAssignments, entryID, transformationString)
-	if EID.CustomTransformAssignments[entryID] == nil then
-		EID.CustomTransformAssignments[entryID] = transformationString
-	else
-		EID.CustomTransformAssignments[entryID] = EID.CustomTransformAssignments[entryID]..","..transformationString
-	end
-	EID:removeEntryFromString(EID.CustomTransformRemovals, entryID, transformationString)
-end
-
--- Try to automatically assign vanilla transformations to the entity
-function EID:tryAutodetectTransformationsCollectible(collectibleID)
-	if not EID.isRepentance then return end
-	local config = EID.itemConfig:GetCollectible(collectibleID)
-	local transformations = {}
-	transformations[EID.TRANSFORMATION.ANGEL] = config:HasTags(ItemConfig.TAG_ANGEL) or nil
-	transformations[EID.TRANSFORMATION.BOB] = config:HasTags(ItemConfig.TAG_BOB) or nil
-	transformations[EID.TRANSFORMATION.BOOKWORM] = config:HasTags(ItemConfig.TAG_BOOK) or nil
-	transformations[EID.TRANSFORMATION.CONJOINED] = config:HasTags(ItemConfig.TAG_BABY) or nil
-	transformations[EID.TRANSFORMATION.GUPPY] = config:HasTags(ItemConfig.TAG_GUPPY) or nil
-	transformations[EID.TRANSFORMATION.LEVIATHAN] = config:HasTags(ItemConfig.TAG_DEVIL) or nil
-	transformations[EID.TRANSFORMATION.LORD_OF_THE_FLIES] = config:HasTags(ItemConfig.TAG_FLY) or nil
-	transformations[EID.TRANSFORMATION.MOM] = config:HasTags(ItemConfig.TAG_MOM) or nil
-	transformations[EID.TRANSFORMATION.MUSHROOM] = config:HasTags(ItemConfig.TAG_MUSHROOM) or nil
-	transformations[EID.TRANSFORMATION.POOP] = config:HasTags(ItemConfig.TAG_POOP) or nil
-	transformations[EID.TRANSFORMATION.SPIDERBABY] = config:HasTags(ItemConfig.TAG_SPIDER) or nil
-	transformations[EID.TRANSFORMATION.SPUN] = config:HasTags(ItemConfig.TAG_SYRINGE) or nil
-	-- these dont have a tag : ADULT, STOMPY, SUPERBUM
-	for k, _ in pairs(transformations) do
-		EID:assignTransformation("collectible", collectibleID, k)
-	end
-end
-
--- Removes a transformation of an entity
--- valid target types: [collectible, trinket, card, pill, entity]
--- when type = entity, targetIdentifier must be in the format "ID.Variant.subtype". for any other type, it can just be the id
--- EXAMPLE: EID:removeTransformation("collectible", 1, "My Transformation")
-function EID:removeTransformation(targetType, targetIdentifier, transformationString)
-	local entryID = EID:getIDVariantString(targetType)
-	if entryID ~= nil then
-		entryID = entryID.."."..targetIdentifier
-	else
-		entryID = targetIdentifier
-	end
-	EID:removeEntryFromString(EID.CustomTransformRemovals, entryID, transformationString)
-	if EID.CustomTransformRemovals[entryID] == nil then
-		EID.CustomTransformRemovals[entryID] = transformationString
-	else
-		EID.CustomTransformRemovals[entryID] = EID.CustomTransformRemovals[entryID]..","..transformationString
-	end
-	EID:removeEntryFromString(EID.CustomTransformAssignments, entryID, transformationString)
-end
-
 -- Removes a given value from the string inside a table. Example: "1,2,3", removing 2 will return "1,3"
 function EID:removeEntryFromString(sourceTable, entryKey, entryValue)
 	if sourceTable[entryKey] == nil then return end
@@ -253,7 +168,7 @@ function EID:removeEntryFromString(sourceTable, entryKey, entryValue)
 	sourceTable[entryKey] = newEntry
 end
 
--- Adds a description for a an Entity. Optional parameters: language, transformations
+-- Adds a description for a an Entity. Optional parameters: language
 -- when subtype is -1 or empty, it will affect all subtypes of that entity
 function EID:addEntity(id, variant, subtype, entityName, description, language)
 	subtype = subtype or nil
@@ -427,8 +342,6 @@ function EID:getDescriptionObj(Type, Variant, SubType, entity, checkModifiers)
 	local tableEntry = EID:getDescriptionData(Type, Variant, SubType)
 	description.Description = tableEntry and tableEntry[3] or EID:getXMLDescription(Type, Variant, SubType)
 
-	description.Transformation = EID:getTransformation(Type, Variant, SubType)
-
 	description.ModName = tableEntry and tableEntry[4]
 	description.Quality = EID:getObjectQuality(description)
 	description.Icon = EID:getObjectIcon(description)
@@ -578,51 +491,6 @@ function EID:getAdjustedSubtype(Type, Variant, SubType)
 	return SubType
 end
 
--- Get the transformation uniqueName / ID of a given entity
--- Example: EID:getTransformation(5,100,34)  will return "12" which is the id for Bookworm
-function EID:getTransformation(id, variant, subType)
-	local adjustedSubtype = EID:getAdjustedSubtype(id, variant, subType)
-	local entityString = id.."."..variant.."."..adjustedSubtype
-	local listToTest = ""
-	local default = EID.EntityTransformations[entityString]
-	if default~= nil then listToTest = default end
-
-	if id == 5 and variant == 100 then
-		local customLegacy = __eidItemTransformations[adjustedSubtype]
-		if customLegacy~= nil then listToTest = listToTest..","..customLegacy end
-	end
-
-	local custom = EID.CustomTransformAssignments[entityString]
-	if custom~= nil then listToTest = listToTest..","..custom end
-
-	local transformationList = ""
-	local removedList = EID.CustomTransformRemovals[entityString]
-	for transform in string.gmatch(listToTest, "([^,]+)") do
-		local isRemoved = false
-		if removedList ~= nil then
-			for removedTransform in string.gmatch(removedList, "([^,]+)") do
-				if transform == removedTransform then isRemoved = true end
-			end
-		end
-		if not isRemoved then transformationList = transformationList..","..transform end
-	end
-	return transformationList
-end
-
---Get the name of the given transformation by its uniqueName / ID
-function EID:getTransformationName(id)
-	local str = "Custom"
-	if tonumber(id) == nil then
-		-- get translated custom name
-		local customTransform = EID.CustomTransformations[id]
-		if customTransform ~= nil then
-			return customTransform[EID:getLanguage()] or customTransform["en_us"] or id
-		end
-		return id
-	end
-	return EID:getDescriptionEntry("transformations")[tonumber(id) + 1] or str
-end
-
 -- tries to get the ingame name of an item based on its ID
 function EID:getObjectName(Type, Variant, SubType)
 	local tableName = EID:getTableName(Type, Variant, SubType)
@@ -656,9 +524,6 @@ function EID:getObjectName(Type, Variant, SubType)
 		return EID:getDescriptionEntry("diceHeader").." ("..SubType..")"
 	elseif tableName == "players" then
 		return EID:getPlayerName(SubType)
-	elseif tableName == "custom" then
-		local xmlName = EID:GetEntityXMLName(Type, Variant, SubType)
-		return name or xmlName or Type.."."..Variant.."."..SubType
 	end
 	return Type.."."..Variant.."."..SubType
 end
@@ -716,13 +581,6 @@ function EID:hasDescription(entity)
 	if not EID:EntitySanityCheck(entity) then return false end
 	
 	if EID:IsGridEntity(entity) then
-		if EID.GridEntityWhitelist[entity:GetType()] then
-			for _, func in ipairs(EID.GridEntityWhitelist[entity:GetType()]) do
-				if func(entity) then
-					return true
-				end
-			end
-		end
 		return false
 	end
 	local isAllowed = false
@@ -745,12 +603,7 @@ function EID:hasDescription(entity)
 		isAllowed = isAllowed or (entity.Variant == PickupVariant.PICKUP_TRINKET and EID.Config["DisplayTrinketInfo"])
 		isAllowed = isAllowed or (entity.Variant == PickupVariant.PICKUP_TAROTCARD and EID.Config["DisplayCardInfo"])
 		isAllowed = isAllowed or (entity.Variant == PickupVariant.PICKUP_PILL and EID.Config["DisplayPillInfo"])
-		return isAllowed and (entity.SubType > 0 or
-			-- For Flip descriptions, allow 5.100.0 pedestals to have descriptions under VERY specific criteria!
-			(EID.isRepentance and EID:getEntityData(entity, "EID_FlipItemID") and EID:PlayersHaveCollectible(CollectibleType.COLLECTIBLE_FLIP)))
-	end
-	if entity.Type == 6 and entity.Variant == 16 and EID.Config["DisplayCraneInfo"] and EID.isRepentance then
-		isAllowed = not entity:GetSprite():IsPlaying("Broken") and not entity:GetSprite():IsPlaying("Prize") and not entity:GetSprite():IsPlaying("OutOfPrizes") and (EID.CraneItemType[entity.InitSeed.."Drop"..entity.DropSeed] or EID.CraneItemType[tostring(entity.InitSeed)])
+		return isAllowed and entity.SubType > 0
 	end
 	if entity.Type == 1000 then
 		if (entity.Variant == 161 and entity.SubType <= 2) or (entity.Variant == EffectVariant.DICE_FLOOR and EID.Config["DisplayDiceInfo"]) then
@@ -895,21 +748,6 @@ function EID:createItemIconObject(str)
 		dynamicSpriteCache[str] = newDynamicSprite
 		return newDynamicSprite
 	end
-end
-
--- Returns the icon for a given transformation name or ID
-function EID:getTransformationIcon(str)
-	if str == nil then
-		return EID.InlineIcons["ERROR"]
-	end
-	if tonumber(str) ~= nil then
-		str = EID.descriptions["en_us"].transformations[tonumber(str + 1)]
-	end
-	local transformSprite = EID:getIcon(str:gsub(" ", ""))
-	if transformSprite[1] == "ERROR" then
-		transformSprite = EID:getIcon("CustomTransformation")
-	end
-	return transformSprite
 end
 
 -- Returns the width of a given string in Pixels
@@ -1393,19 +1231,6 @@ function EID:PlayersHaveCharacter(playerType, includeTainted)
 	return false
 end
 
--- Converts a given CollectibleID into the respective Spindown dice result
-function EID:getSpindownResult(collectibleID)
-	if collectibleID <= 0 or collectibleID > 4294960000 then return 0 end
-	local newID = collectibleID
-	local attempts = 0
-	repeat
-		newID = newID - 1
-		attempts = attempts + 1
-	--note: the order of the SkipLocked check statement is important so that the item is checked for being in a pool either way (to display a ? if it isn't)
-	until (EID.itemConfig:GetCollectible(newID) and (EID:isCollectibleUnlocked(newID) or not EID.Config["SpindownDiceSkipLocked"]) and not EID.itemConfig:GetCollectible(newID).Hidden and EID:isCollectibleAllowed(newID)) or newID == CollectibleType.COLLECTIBLE_NULL or attempts > 10
-	return newID
-end
-
 -- Returns the maximum collectible id, including modded items
 local maxCollectibleID = nil -- cache after first use. this number will not change mid game
 function EID:GetMaxCollectibleID()
@@ -1453,14 +1278,6 @@ function EID:DetectModdedItems()
 	return false
 end
 
--- REPENTANCE ONLY! Return whether the collectible is considered available
--- Bag of Crafting rerolls unavailable items; this function is kept brief to help BoC speed
-function EID:isCollectibleAvailable(collectibleID)
-	if EID.itemAvailableStates[collectibleID] == nil then
-		EID.itemAvailableStates[collectibleID] = EID.itemConfig:GetCollectible(collectibleID):IsAvailable()
-	end
-	return EID.itemAvailableStates[collectibleID]
-end
 
 -- REPENTANCE ONLY! Return our best guess on whether an achievement-locked collectible is unlocked
 -- (Things like Tainted Lost and Sacred Orb give false negatives)
@@ -1539,97 +1356,6 @@ function EID:GetDimension(level)
     return nil
 end
 
--- Converts a given table into a string containing the crafting icons of the table
--- Example input: {1,2,3,4,5,6,7,8}
--- Result: "{{Crafting1}}{{Crafting2}}{{Crafting3}}{{Crafting4}}{{Crafting5}}{{Crafting6}}{{Crafting7}}{{Crafting8}}"
-local emptyPickupTable = {}
-for i=1, 29 do emptyPickupTable[i] = 0 end
-
-function EID:tableToCraftingIconsFull(craftTable, indicateCompleteContent)
-	local sortedList = {table.unpack(craftTable)}
-	table.sort(sortedList, function(a, b) return a < b end)
-	local visitedItemCount = {table.unpack(emptyPickupTable)}
-
-	local iconString = ""
-	for _, nr in ipairs(sortedList) do
-		visitedItemCount[nr] = visitedItemCount[nr] + 1
-		local containsItemResult = EID:bagContainsItem(nr, visitedItemCount[nr])
-		local completedColoring = indicateCompleteContent and containsItemResult and containsItemResult >= 1 and "{{IconGreenTint}}" or ""
-		iconString = iconString..completedColoring.."{{Crafting"..nr.."}}"
-	end
-	return iconString
-end
-
--- Converts a given table into a string containing the crafting icons of the table, which are also grouped to reduce render lag
--- Example input: {1,1,1,2,2,3,3,3}
--- Result: "3{{Crafting1}}2{{Crafting2}}3{{Crafting3}}"
-function EID:tableToCraftingIconsMerged(craftTable, indicateCompleteContent)
-	local sortedList = {table.unpack(craftTable)}
-	local filteredList = {table.unpack(emptyPickupTable)}
-	for _, nr in ipairs(sortedList) do
-		filteredList[nr] = filteredList[nr] + 1
-	end
-	local iconString = ""
-	for nr, count in ipairs(filteredList) do
-		if (count > 0) then
-			local coloring = ""
-			if indicateCompleteContent then
-				local bagContainsItem = EID:bagContainsItem(nr, count)
-				if bagContainsItem == 1 then
-					coloring = "{{ColorBagComplete}}"
-				elseif bagContainsItem == 2 then
-					coloring = "{{ColorBagOverfill}}"
-				end
-			end
-
-			iconString = iconString..coloring..count.."{{Crafting"..nr.."}}{{CR}}"
-		end
-	end
-	return iconString
-end
-
--- Checks how many of an item there are in the bag
--- Returns false if the item is not in the bag
--- Returns 0 if there are fewer than the target amount
--- Returns 1 if there are exactly the target amount
--- Returns 2 if there are more than the target amount
-function EID:bagContainsItem(itemID, itemCount)
-	local foundCount = 0
-	local bagItems = EID.BoC.BagItemsOverride or EID.BoC.BagItems
-	for _, bagItem in ipairs(bagItems) do
-		if bagItem == itemID then
-			foundCount = foundCount + 1
-		end
-	end
-
-	if foundCount == 0 then
-		return false
-	elseif foundCount < itemCount then
-		return 0
-	elseif foundCount == itemCount then
-		return 1
-	else
-		return 2
-	end
-end
-
--- Get the number of pickups in the given recipe table that are inside our bag
--- (For checking if a recipe is possible to create if you need to use every item in your bag)
-function EID:bagContainsCount(craftTable)
-	local count = 0
-	local ingredCount = {table.unpack(emptyPickupTable)}
-	for _, id in ipairs(craftTable) do
-		ingredCount[id] = ingredCount[id] + 1
-	end
-	local bagItems = EID.BoC.BagItemsOverride or EID.BoC.BagItems
-	for _, bagItem in ipairs(bagItems) do
-		if ingredCount[bagItem] > 0 then
-			count = count + 1
-			ingredCount[bagItem] = ingredCount[bagItem] - 1
-		end
-	end
-	return count
-end
 
 function EID:handleHUDElement(hudElement)
 	local alteredHudElement = {}
@@ -1737,11 +1463,6 @@ end
 -- Get KColor object of "Description" texts
 function EID:getTextColor()
 	return EID:getColor(EID.Config["TextColor"], EID.InlineColors["ColorEIDText"])
-end
-
--- Get KColor object of "Transformation" texts
-function EID:getTransformationColor()
-	return EID:getColor(EID.Config["TransformationColor"], EID.InlineColors["ColorEIDTransform"])
 end
 
 -- Get KColor object of "Error" texts
@@ -1900,105 +1621,6 @@ function EID:replaceMarkupSize(description)
 	return description
 end
 
--- Creates a table that contains all objects a transformation is associated with.
-EID.TransformationLookup = {}
-function EID:buildTransformationTables()
-	EID.TransformationLookup = {}
-	for entityString, transformationData in pairs(EID.EntityTransformations) do
-		EID:alterTransformationLookup(entityString, transformationData, true)
-	end
-	-- legacy
-	for subType, transformationData in pairs(__eidItemTransformations) do
-		EID:alterTransformationLookup("5.100."..subType, transformationData, true)
-	end
-	-- add custom
-	for entityString, transformationData in pairs(EID.CustomTransformAssignments) do
-		EID:alterTransformationLookup(entityString, transformationData, true)
-	end
-	-- custom remove
-	for entityString, transformationData in pairs(EID.CustomTransformRemovals) do
-		EID:alterTransformationLookup(entityString, transformationData, nil)
-	end
-end
-
-function EID:alterTransformationLookup(entityString, transformString, addToList)
-	for transformation in string.gmatch(transformString, '([^,]+)') do
-		if EID.TransformationLookup[transformation] == nil then
-			EID.TransformationLookup[transformation] = {}
-		end
-		EID.TransformationLookup[transformation][entityString] = addToList
-	end
-end
-
--- Given a transformation identifier, itterate over every player and count the number of items they have which count towards that transformation
-EID.TransformationProgress = {}
-function EID:evaluateTransformationProgress(transformation)
-	for i = 0, game:GetNumPlayers() - 1 do
-		local player = Isaac.GetPlayer(i)
-		local id = EID:getPlayerID(player, true) -- Dead Tainted Lazarus exception
-		EID.TransformationProgress[id] = {}
-		EID.TransformationProgress[id][transformation] = 0
-		local transformData = EID.TransformationData[transformation]
-
-		if not EID.TransformationLookup[transformation] then return end
-
-		if REPENTOGON and transformData and transformData.VanillaForm then
-			 -- REPENTOGON lets us ignore everything else for vanilla transformation progress
-			EID.TransformationProgress[id][transformation] = player:GetPlayerFormCounter(transformData.VanillaForm)
-		elseif transformData and transformData.VanillaForm and player:HasPlayerForm(transformData.VanillaForm) then
-			EID.TransformationProgress[id][transformation] = transformData.NumNeeded or 3
-		else
-			local pickupHistory = EID.PlayerItemInteractions[id].pickupHistory
-			local pillsTable = {}
-			if pickupHistory then
-				for j = 1, #pickupHistory do
-					if pickupHistory[j][1] == "pill" then
-						local pillSubType = tostring(pickupHistory[j][3])
-						if not pillsTable[pillSubType] then
-							pillsTable[pillSubType] = 0
-						end
-						pillsTable[pillSubType] = pillsTable[pillSubType] + 1 -- collect pill SubType
-					end
-				end
-			end
-
-			local activesTable = EID.PlayerItemInteractions[id].actives
-			for entityString, _ in pairs(EID.TransformationLookup[transformation]) do
-				local eType, eVariant, eSubType = entityString:match("([^.]+).([^.]+).([^.]+)")
-				if tonumber(eType) == EntityType.ENTITY_PICKUP then
-					if tonumber(eVariant) == PickupVariant.PICKUP_COLLECTIBLE then
-						local currentCount = EID.TransformationProgress[id][transformation]
-						if activesTable[tostring(eSubType)] then
-							EID.TransformationProgress[id][transformation] = EID.TransformationProgress[id][transformation] + activesTable[tostring(eSubType)]
-						else
-							local collCount = player:GetCollectibleNum(eSubType, true)
-							if EID.PlayerItemInteractions[id].rerollItems then
-								collCount = collCount - (EID.PlayerItemInteractions[id].rerollItems[tostring(eSubType)] or 0)
-							end
-							EID.TransformationProgress[id][transformation] = EID.TransformationProgress[id][transformation] + collCount
-
-							-- Undo the Book of Virtues active item getting counted here
-							if EID.isRepentance and tonumber(eSubType) == 584 and player:GetActiveItem() == 584 then
-								EID.TransformationProgress[id][transformation] = EID.TransformationProgress[id][transformation] - 1
-							end
-						end
-						-- In AB+, only one copy of a given collectible is counted for trans
-						if not EID.isRepentance and EID.TransformationProgress[id][transformation] > currentCount + 1 then
-							EID.TransformationProgress[id][transformation] = currentCount + 1
-						end
-					elseif tonumber(eVariant) == PickupVariant.PICKUP_TRINKET and player:HasTrinket(eSubType) then
-						EID.TransformationProgress[id][transformation] = EID.TransformationProgress[id][transformation] + player:GetTrinketMultiplier(eSubType)
-					elseif tonumber(eVariant) == PickupVariant.PICKUP_PILL then
-						if pillsTable[tostring(eSubType)] then
-							EID.TransformationProgress[id][transformation] = EID.TransformationProgress[id][transformation] + pillsTable[tostring(eSubType)]
-						end
-					end
-				end
-			end
-		end
-	end
-end
-
 -- Create a list of all grid entities in the room that have an EID description
 function EID:CheckCurrentRoomGridEntities()
 	EID.CurrentRoomGridEntities = {}
@@ -2026,7 +1648,7 @@ function EID:evaluateHeldPill()
 end
 
 -- Watch for a player's queued item (holding an item over their head) to track active item touches
--- Used for Transformation Progress and for tracking Recently Touched Items
+-- Used for tracking Recently Touched Items
 EID.PlayerItemInteractions = {}
 EID.RecentlyTouchedItems = {}
 local hadQueuedItem = {}
@@ -2193,15 +1815,6 @@ function EID:RenderEntity(entity, sprite, position)
 	end
 end
 
--- Tries to get the Vanilla transformations of modded items based on Tags
-function EID:GetTransformationsOfModdedItems()
-	if not EID.isRepentance then return end
-	local numCollectibles = EID:GetMaxCollectibleID()
-	for i = 733, numCollectibles, 1 do
-		EID:tryAutodetectTransformationsCollectible(i)
-	end
-end
-
 -- Collects items that the player got after using D4 item
 function EID:CollectRerolledItemsOfPlayer(player)
 	if maxCollectibleID == nil then maxCollectibleID = EID:GetMaxCollectibleID() end
@@ -2229,18 +1842,6 @@ end
 -- returns true if the given pill color was used at least once in this game
 function EID:WasPillUsed(pillColor)
 	return EID.UsedPillColors[tostring(pillColor)] ~= nil
-end
-
--- returns the name of the given entity
----@diagnostic disable-next-line: duplicate-set-field
-function EID:GetEntityXMLName(Type, Variant, SubType)
-	return EID.XMLEntityNames[Type.."."..Variant] or EID.XMLEntityNames[Type.."."..Variant.."."..SubType]
-end
-
----@diagnostic disable-next-line: duplicate-set-field
-function EID:GetEntityXMLNameByString(tvsString)
-	local Type, Var, Sub = EID:SplitTVS(tvsString)
-	return EID:GetEntityXMLName(Type, Var, Sub)
 end
 
 -- Get an item's RNG seed. We have no use for the RNG object itself because every other function it can do will advance the item's RNG, altering the game state
@@ -2350,17 +1951,6 @@ function EID:UpdateAllPlayerPassiveItems()
 				end
 			end
 		end
-		-- super hacky Tainted Cain active items check, mostly for transformation progress
-		-- Only adds up to one copy of any active, I can't think of a good way to recognize a craft of the same active twice. better than nothing
-		if EID.isRepentance and player:GetPlayerType() == 23 then
-			for j = 0, 1 do
-				local itemID = tostring(player:GetActiveItem(j))
-				if itemID ~= "0" then
-					EID:InitActiveItemInteraction(itemID)
-					if EID.PlayerItemInteractions[playerNum].actives[itemID] == 0 then EID.PlayerItemInteractions[playerNum].actives[itemID] = 1 end
-				end
-			end
-		end
 	end
 	return listUpdatedForPlayers
 end
@@ -2410,47 +2000,6 @@ function EID:UpdateAllPlayerLemegetonWisps()
 	for playerNum,wisps in pairs(EID.WispsPerPlayer) do
 		table.sort(wisps, function(a, b) return a.FrameCount < b.FrameCount end)
 		for i,v in ipairs(wisps) do wisps[i] = v.SubType end
-	end
-end
-
--- This table holds, for each pedestal in the room, a table of item IDs that have been on that pedestal, and timestamps of when they were first and last seen
--- The Glitched Crown callback when describing the pedestal will sort by first timestamp, and delete entries with too old of a last timestamp (like after a reroll)
-EID.GlitchedCrownCheck = {}
--- Watch pedestals for being a Glitched Crown style pedestal that flips between items too quickly to display descriptions for
-function EID:WatchForGlitchedCrown()
-	if REPENTOGON then
-		-- In REPENTOGON, always check even without Glitched Crown, allowing to check 5+ Soul of Isaac usage, or Everything Jar
-		local curRoomIndex = game:GetLevel():GetCurrentRoomDesc().ListIndex
-		EID.GlitchedCrownCheck[curRoomIndex] = EID.GlitchedCrownCheck[curRoomIndex] or {}
-
-		for _, entity in ipairs(Isaac.FindByType(5, 100, -1, true, false)) do
-			-- Use InitSeed and Index to prevent any Diplopia weirdness
-			EID.GlitchedCrownCheck[curRoomIndex][entity.InitSeed..entity.Index] = EID.GlitchedCrownCheck[curRoomIndex][entity.InitSeed..entity.Index] or {}
-			local pickup = entity:ToPickup()
-			local cycle = pickup:GetCollectibleCycle()
-			if #cycle > 1 then
-				for i, subType in ipairs(cycle) do
-					EID.GlitchedCrownCheck[curRoomIndex][entity.InitSeed..entity.Index][subType] = EID.GlitchedCrownCheck[curRoomIndex][entity.InitSeed..entity.Index][subType] or {EID.GameUpdateCount + i, EID.GameUpdateCount + i}
-					-- update the last frame seen for the pedestal's current collectible ID
-					EID.GlitchedCrownCheck[curRoomIndex][entity.InitSeed..entity.Index][subType][2] = EID.GameUpdateCount + i
-				end
-			end
-		end
-	else
-		if not EID.collectiblesOwned[689] then return end
-
-		local curRoomIndex = game:GetLevel():GetCurrentRoomDesc().ListIndex
-		EID.GlitchedCrownCheck[curRoomIndex] = EID.GlitchedCrownCheck[curRoomIndex] or {}
-		
-		for _, entity in ipairs(Isaac.FindByType(5, 100, -1, true, false)) do
-			-- Use InitSeed and Index to prevent any Diplopia weirdness
-			EID.GlitchedCrownCheck[curRoomIndex][entity.InitSeed..entity.Index] = EID.GlitchedCrownCheck[curRoomIndex][entity.InitSeed..entity.Index] or {}
-			-- Initialize the data about this pedestal showing its current item ID, if necessary
-			-- in order to sort the items displayed, while also trashing items that haven't shown up in a while, keep both "initial frame seen" and "last frame seen"
-			EID.GlitchedCrownCheck[curRoomIndex][entity.InitSeed..entity.Index][entity.SubType] = EID.GlitchedCrownCheck[curRoomIndex][entity.InitSeed..entity.Index][entity.SubType] or {EID.GameUpdateCount, EID.GameUpdateCount}
-			-- update the last frame seen for the pedestal's current collectible ID
-			EID.GlitchedCrownCheck[curRoomIndex][entity.InitSeed..entity.Index][entity.SubType][2] = EID.GameUpdateCount
-		end
 	end
 end
 

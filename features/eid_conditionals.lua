@@ -19,44 +19,6 @@ Argument 4: Optional table that can define a variety of different settings
 
 ]]
 
------- GENERAL CONDITIONS ------
--- Tarot Cloth
-if not EID.isRepentance then
-	EID:AddItemConditional("5.300", 451, nil, {locTable = "tarotClothBuffsAB", replaceColor = "ColorShinyPurple", noFallback = false})
-else EID:AddItemConditional("5.300", 451, nil, {locTable = "tarotClothBuffs", replaceColor = "ColorShinyPurple", noFallback = false}) end
-
--- Car Battery
-EID:AddItemConditional("5.100", 356, EID.CheckForCarBattery, {locTable = "carBattery", replaceColor = "BlinkYellowGreen", noFallback = false})
-EID:AddConditional(356, EID.CheckActivesForCarBattery, nil, {locTable = "carBattery", useResult = true, layer = 2}) -- Effect text for Car Battery pedestal
-EID:AddConditional(356, EID.CheckActivesForNoCarBattery, "No Effect", {layer = 1}) -- "No effect" text for Car Battery pedestal
-
-
--- BFFS! / Hive Mind / Forgotten Lullaby
-EID:AddItemConditional({"5.100","5.350.54","5.350.57"}, 247, EID.CheckForBFFS, {locTable = "BFFSSynergies", replaceColor = "BlinkPink", noFallback = false, uniqueID = "BFFS"})
-EID:AddConditional(247, EID.CheckFamiliarsForBFFS, nil, {locTable = "BFFSSynergies", useResult = true, layer = 2}) -- Effect text for BFFS pedestal
-EID:AddPlayerConditional(247, 13, "Lilith", {locTable = "BFFSSynergies", layer = 3}, false) -- Lilith's Incubus
-EID:AddConditional(247, EID.CheckFamiliarsForNoBFFS, "No Effect", {layer = 1}) -- No effect text for BFFS pedestal
-if EID.isRepentance then
-	EID:AddItemConditional({"5.300.96", "5.350.142", "5.350.176", "5.350.182", "5.350.186"}, 247, EID.CheckForBFFS, {locTable = "BFFSSynergies", replaceColor = "BlinkPink", noFallback = false}) -- BFFS! Repentance soulstone/trinkets
-	EID:AddPlayerConditional(247, 32, "Tainted Lilith", {locTable = "BFFSSynergies", layer = 3}) -- Tainted Lilith's Gello
-	EID:AddItemConditional("5.100", 248, EID.CheckForHiveMind, {locTable = "BFFSSynergies", replaceColor = "BlinkBlue", noFallback = false, uniqueID = "BFFS"}) -- Hive Mind
-	EID:AddSynergyConditional(247, 248, "No Effect (Familiars)", nil, {layer = 5}) -- Already having Hive Mind / BFFS!
-	EID:AddConditional(248, EID.CheckFamiliarsForHiveMind, nil, {locTable = "BFFSSynergies", useResult = true, layer = 2}) -- Effect text for Hive Mind pedestal
-	
-	EID:AddSynergyConditional({584, 685, 702, 728}, "5.350.141", "No Effect From", "No Effect") -- Forgotten Lullaby no effect familiars (wisps, Gello)
-	EID:AddPlayerConditional("5.350.141", 32, "No Effect", {bulletpoint = "Collectible728", variableText = "{{NameOnlyC728}}"}) -- Forgotten Lullaby no effect on Tainted Lilith's Gello
-	EID:AddPlayerConditional("5.350.141", 13, "Lullaby Incubus", nil, false) -- Forgotten Lullaby effect for Incubus
-	EID:AddItemConditional("5.350.141", {713, "5.350.176"}, "Lullaby Clots") -- Forgotten Lullaby effect for clots
-end
-
--- Abyss, Birthright Book of Belial, Binge Eater
-if EID.isRepentance then
-	EID:AddItemConditional("5.100", 706, nil, { locTable = "abyssSynergies", lineColor = "ColorRed" }, false) -- Abyss (no item reminder)
-	EID:AddItemConditional("5.100", 59, nil, { locTable = "bookOfBelialBuffs" })                         -- Belial Birthright
-	EID:AddItemConditional("5.100", 664, nil, { locTable = "bingeEaterBuffs" })                          -- Binge Eater
-	EID:AddItemConditional({22, 23, 24, 25, 26, 346, 456, 707}, 664, "Binge Eater Healing") -- Binge Eater (Heals 2 hearts)
-end
-
 
 ------ GREED MODE ------
 -- "No effect" append

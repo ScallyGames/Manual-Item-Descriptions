@@ -18,23 +18,6 @@ function EID:checkPlayersForMissingItems() end
 -- REPENTOGON: Function is no longer used since repentogon always has progress enabled.
 function EID:AreAchievementsAllowed() return true end
 
--- REPENTOGON: Entity names can now be directly read from XML
--- returns the name of the given entity
-function EID:GetEntityXMLName(Type, Variant, SubType)
-	local xmlEntry = XMLData.GetEntityByTypeVarSub(Type, Variant, SubType)
-	return xmlEntry and xmlEntry.name or EID.XMLEntityNames[Type .. "." .. Variant] or
-		EID.XMLEntityNames[Type .. "." .. Variant .. "." .. SubType]
-end
-
--- takes a string like "5.100.69"
-function EID:GetEntityXMLNameByString(str)
-	local sep = {}
-	for i in string.gmatch(str, "([^.]+)") do
-		table.insert(sep, i)
-	end
-	return EID:GetEntityXMLName(sep[1], sep[2], sep[3])
-end
-
 -- Render EID above hud, if REPENTOGON is installed
 EID:RemoveCallback(ModCallbacks.MC_POST_RENDER, EID.OnRender)
 EID:AddCallback(ModCallbacks.MC_HUD_RENDER, EID.OnRender)
@@ -82,45 +65,6 @@ function EID:OnMenuRender()
 end
 
 EID:AddCallback(ModCallbacks.MC_MAIN_MENU_RENDER, EID.OnMenuRender)
-
-
----------------------------BAG OF CRAFTING-------------------------------
--- Directly read bag of crafting content
-function EID:BoCCheckForPickups()
-	EID.BoC.BagItems = {}
-	for key, value in pairs(EID.bagPlayer:GetBagOfCraftingContent()) do
-		if value <= 0 then return end -- no more items in the bag
-		EID.BoC.BagItems[key] = value
-	end
-end
-
--- Deactivate manual tracking code
-function EID:BoCTrackBagHolding() end
-
-function EID:BoCDetectBagContentShift() end
-
--- read room items directly from room data when changing rooms, to ensure floor item counter doesnt desync
-function EID:BoCOnNewRoom_Repentogon(_)
-	EID.BoCOnNewRoom(_)
-	local lastRoomDesc = game:GetLevel():GetLastRoomDesc()
-	local lastRoomEntities = lastRoomDesc:GetEntitiesSaveState()
-
-	local roomItems = {}
-	for id = 0, #lastRoomEntities - 1 do
-		local entitySaveState = lastRoomEntities:Get(id)
-		if entitySaveState:GetType() == 5 and entitySaveState:GetI3() == 0 then -- is pickup and not shop item
-			local craftingIDs = EID:getBagOfCraftingID(entitySaveState:GetVariant(), entitySaveState:GetSubType())
-			if craftingIDs ~= nil then
-				for _,v in ipairs(craftingIDs) do
-					table.insert(roomItems, v)
-				end
-			end
-		end
-	end
-	EID.BoC.RoomQueries[lastRoomDesc.ListIndex .. ""] = { roomItems, lastRoomDesc.Data.Variant }
-end
-EID:RemoveCallback(ModCallbacks.MC_POST_NEW_ROOM, EID.BoCOnNewRoom)
-EID:AddCallback(ModCallbacks.MC_POST_NEW_ROOM, EID.BoCOnNewRoom_Repentogon)
 
 -----------------------Descriptions & Modifiers --------------------------
 local oldHasDescription = EID.hasDescription

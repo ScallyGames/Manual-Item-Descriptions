@@ -83,23 +83,11 @@ EID:ResetItemReminderSelectedItems()
 -- This table is for items that should have a special modifier applied to them when viewed in the item reminder
 -- Format: ItemID = table
 -- 		modifierFunction = function that modifies the original description object of the item
--- 		isCheat = Only evaluate, if the "ItemReminderShowRNGCheats" config option is enabled
---		isHiddenInfo = Only evaluate, if the "ItemReminderShowHiddenInfo" config option is enabled
 --		isRepentance = Only evaluate, if Repentance is installed
 --      noOverview = If true, this modifier doesn't have special priority in the Overview category (most do)
 -- Make sure to return true if the description was modified, so the overview knows
 EID.ItemReminderDescriptionModifier = {
 	---------------- Passive Items ----------------
-	["5.100.392"] = { -- Zodiac
-		isHiddenInfo = true,
-		modifierFunction = function(descObj, player)
-			local zodiacItem = player:GetZodiacEffect()
-			if zodiacItem > 0 then
-				descObj = EID:ItemReminderReplaceWithResult(descObj, zodiacItem)
-				return true
-			end
-		end
-	},
 	["5.100.700"] = { -- Echo Chamber
 		isRepentance = true,
 		modifierFunction = function(descObj, player, inOverview)
@@ -128,27 +116,9 @@ EID.ItemReminderDescriptionModifier = {
 			end
 		end
 	},
-	["5.100.464"] = { -- Glyph of Balance
-		modifierFunction = function(descObj, player, inOverview)
-			local result = EID:GlyphOfBalancePrediction(player)
-			EID:ItemReminderAddResult(descObj, result, inOverview)
-			return true
-		end
-	},
 
 	---------------- Active Items ----------------
 
-	["5.100.44"] = { -- Teleport! location
-		isCheat = true,
-		modifierFunction = function(descObj, player, inOverview)
-			-- The result preview changes as soon as we activate Teleport, which looks awkward, so try to not display the result while mid-teleport.
-			-- Doesn't work perfectly and only in Rep
-			if not EID.isRepentance or player:GetSprite():GetAnimation() ~= "TeleportUp" then
-				EID:ItemReminderAddResult(descObj, EID:Teleport1Prediction(EID:GetItemSeed(player, 44)), inOverview)
-				return true
-			end
-		end,
-	},
 	["5.100.297"] = { -- Pandora's Box shortened description for overview
 		modifierFunction = function(descObj, player, inOverview)
 			if inOverview then
@@ -228,19 +198,6 @@ EID.ItemReminderDescriptionModifier = {
 			return true
 		end
 	},
-	["5.100.419"] = { -- Teleport 2.0 location
-		modifierFunction = function(descObj, _, inOverview)
-			EID:ItemReminderAddResult(descObj, EID:Teleport2Prediction(), inOverview)
-			return true
-		end
-	},
-	["5.100.476"] = { -- D1
-		isCheat = true,
-		modifierFunction = function(descObj, player, inOverview)
-			EID:ItemReminderAddResult(descObj, EID:D1Prediction(EID:GetItemSeed(player, 476)), inOverview)
-			return true
-		end
-	},
 	["5.100.477"] = { -- Void
 		modifierFunction = function(descObj, player, inOverview)
 			local absorbedItems = EID.absorbedItems[tostring(EID:getPlayerID(player, true))]
@@ -266,49 +223,10 @@ EID.ItemReminderDescriptionModifier = {
 			end
 		end
 	},
-	["5.100.485"] = { -- Crooked Penny
-		isCheat = true,
-		modifierFunction = function(descObj, player, inOverview)
-			EID:ItemReminderAddResult(descObj, EID:CrookedPennyPrediction(EID:GetItemSeed(player, 485), player:HasCollectible(356)), inOverview)
-			return true
-		end
-	},
-	["5.100.488"] = { -- Metronome
-		isCheat = true,
-		modifierFunction = function(descObj, player)
-			local predictionItem = EID:MetronomePrediction(EID:GetItemSeed(player, 488))
-			descObj = EID:ItemReminderReplaceWithResult(descObj, predictionItem)
-			return true
-		end
-	},
 	["5.100.489"] = { -- D Infinity
 		modifierFunction = function(descObj, player)
 			local predictionItem = EID:CurrentDInfinity(EID:GetItemSeed(player, 489), player)
 			descObj = EID:ItemReminderReplaceWithResult(descObj, predictionItem)
-			return true
-		end
-	},
-	["5.100.710"] = { -- Bag of Crafting
-		isRepentance = true,
-		modifierFunction = function(descObj, _, inOverview)
-			local floorQuery = EID.BoC.FloorOverride or EID.BoC.FloorQuery
-			local inventoryQuery = EID.BoC.InventoryOverride or EID.BoC.InventoryQuery
-			local bagItems = EID.BoC.BagItemsOverride or EID.BoC.BagItems
-			local total = #floorQuery + #inventoryQuery + #bagItems
-			local text = EID:ReplaceVariableStr(EID:getDescriptionEntry("CraftingNumAvailableItems"), 1, total)
-			if total < 8 then text = text .. "#{{Warning}} ".. EID:getDescriptionEntry("CraftingWarningAvailableItems") end
-			
-			if EID.CraftingIsHidden then
-				local controllerEnabled = EID.bagPlayer.ControllerIndex > 0
-				local hideKey = EID.KeyboardToString[EID.Config["CraftingHideKey"]]
-				local hideButton = controllerEnabled and EID.ButtonToIconMap[EID.Config["CraftingHideButton"]]
-				text = text .. "#!!! ".. EID:ReplaceVariableStr(EID:getDescriptionEntry("CraftingIsHidden"), 1, (hideKey or hideButton))
-			end
-			if inOverview then
-				descObj.Description = text
-			else
-				descObj.Description = descObj.Description .. "#" .. text
-			end
 			return true
 		end
 	},
@@ -333,70 +251,13 @@ EID.ItemReminderDescriptionModifier = {
 				descObj.Name = originalName
 				if inOverview then EID:ItemReminderAddResultHeaderSuffix(descObj, demoDescObj.Name) end
 				return true
-			elseif EID.Config["ItemReminderShowRNGCheats"] then
-				-- Teleport
-				local demoDescObj = EID:getDescriptionObj(5, 100, 44)
-				EID.ItemReminderDescriptionModifier["5.100.44"].modifierFunction(descObj, player, inOverview)
-				descObj.Name = originalName
-				if inOverview then EID:ItemReminderAddResultHeaderSuffix(descObj, demoDescObj.Name) end
-				return true
-			end
-		end
-	},
-	["5.350.32"] = { -- Liberty Cap
-		isHiddenInfo = true,
-		modifierFunction = function(descObj, player)
-			local result = EID:LibertyCapPrediction(player)
-			if result then
-				descObj = EID:ItemReminderReplaceWithResult(descObj, result)
-				return true
-			end
-		end
-	},
-	["5.350.64"] = { -- Rainbow Worm
-		isHiddenInfo = true,
-		modifierFunction = function(descObj, _)
-			-- Rainbow Worm's trinket IDs it grants, in order
-			local rainbowWormEffects = { [0] = 9, 11, 65, 27, 10, 12, 26, 66, 96, 144 }
-			local trinketID = rainbowWormEffects[math.floor(game.TimeCounter / 30 / 3) % (EID.isRepentance and 10 or 8)]
-			descObj = EID:ItemReminderReplaceWithResult(descObj, trinketID, 350)
-			return true
-		end
-	},
-	["5.350.75"] = {   -- 404 Error
-		isHiddenInfo = true,
-		modifierFunction = function(descObj, _)
-			local seed = game:GetLevel():GetCurrentRoom():GetSpawnSeed()
-			local result = EID:RNGNext(seed, 2, 7, 25) % (EID.isRepentance and 189 or 128) + 1
-			descObj = EID:ItemReminderReplaceWithResult(descObj, result, 350)
-			return true
-		end
-	},
-	["5.350.132"] = { -- Broken Syringe
-		isHiddenInfo = true,
-		modifierFunction = function(descObj, player)
-			local result = EID:BrokenSyringePrediction(player)
-			if result then
-				descObj = EID:ItemReminderReplaceWithResult(descObj, result)
-				return true
-			end
-		end
-	},
-	["5.350.153"] = { -- Mom's Lock
-		isHiddenInfo = true,
-		modifierFunction = function(descObj, player)
-			local result = EID:MomsLockPrediction(player)
-			if result then
-				descObj = EID:ItemReminderReplaceWithResult(descObj, result)
-				return true
 			end
 		end
 	},
 	["5.350.166"] = { -- Modeling Clay
 		isRepentance = true,
 		modifierFunction = function(descObj, player)
-			-- When gulped, Modeling Clay's current item becomes Hidden Information
-			if EID.Config["ItemReminderShowHiddenInfo"] or player:GetTrinket(0) == 166 or player:GetTrinket(1) == 166 then
+			if player:GetTrinket(0) == 166 or player:GetTrinket(1) == 166 then
 				local modelingClayItem = player:GetModelingClayEffect()
 				if modelingClayItem > 0 then
 					descObj = EID:ItemReminderReplaceWithResult(descObj, modelingClayItem)
@@ -470,9 +331,7 @@ function EID:ItemReminderAddDescription(player, entityType, variant, subType, ex
 
 	local specialDesc = EID.ItemReminderDescriptionModifier[objectID]
 	if specialDesc and type(specialDesc.modifierFunction) == "function" then
-		-- don't add, if description modifier is a cheat and cheats are disabled
 		local evaluateFunction = true
-		if (specialDesc.isCheat and not EID.Config["ItemReminderShowRNGCheats"]) then evaluateFunction = false end
 		if (specialDesc.isHiddenInfo and not EID.Config["ItemReminderShowHiddenInfo"]) then evaluateFunction = false end
 		if (specialDesc.isRepentance and not EID.isRepentance) then evaluateFunction = false end
 		if evaluateFunction then
@@ -490,7 +349,6 @@ function EID:ItemReminderAddSpecialDescriptions(player)
 	for objectID,specialDesc in pairs(EID.ItemReminderDescriptionModifier) do
 		local evaluateFunction = true
 		if (not EID:PlayerHasItem(player, objectID)) then evaluateFunction = false end
-		if (specialDesc.isCheat and not EID.Config["ItemReminderShowRNGCheats"]) then evaluateFunction = false end
 		if (specialDesc.isHiddenInfo and not EID.Config["ItemReminderShowHiddenInfo"]) then evaluateFunction = false end
 		if (specialDesc.isRepentance and not EID.isRepentance) then evaluateFunction = false end
 		if evaluateFunction then

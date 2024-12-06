@@ -28,11 +28,11 @@ White='\033[0;37m'        # White
 BWhite='\033[1;37m'       # Bold White
 
 ignoreNodesWithName = {"fonts"}
-ignoreTypeMissmatchNodesWithName = {"ConditionalDescs", "BFFSSynergies"}
+ignoreTypeMissmatchNodesWithName = {"ConditionalDescs"}
 
 dlcs = ["ab+", "rep", "rep+"]
 
-maxChecklimit = {"tarotClothBuffs": 2, "carBattery": 2, "BFFSSynergies": 2}
+maxChecklimit = {}
 
 
 # count en_us entries for stats
@@ -57,14 +57,8 @@ def addUpdatedTables(languageCode, dlc):
         # Add all tables that are assumed to exist already in ab+
         updatedTables = ["collectibles", "trinkets"]
         if dlc == "rep":
-            updatedTables += ["cards", "pills", "carBattery", "BFFSSynergies", "CharacterInfo", "ConditionalDescs", "VoidNames", "custom"]
+            updatedTables += ["cards", "pills", "CharacterInfo", "ConditionalDescs", "custom"]
 
-        # korean uses some additional addititve tables
-        if languageCode == "ko_kr":
-            if dlc == "rep":
-                updatedTables += ["dice", "MCM"]
-            else:
-                updatedTables += ["bookOfVirtuesWisps"]
         for table in updatedTables:
             lua.execute('EID.descriptions["'+languageCode+'"].'+table+' = {}')
 

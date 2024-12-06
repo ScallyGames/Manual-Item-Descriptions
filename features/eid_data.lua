@@ -32,43 +32,6 @@ EID.effectList = {
 	["161"] = true,
 }
 
--- Grid entity types to be detected by EID
--- Add functions to the list to further filter the entries
-EID.GridEntityWhitelist = {
-	[GridEntityType.GRID_SPIKES] = {
-		function(gridEntity)
-			return Game():GetRoom():GetType() == RoomType.ROOM_SACRIFICE and
-				EID.Config["DisplaySacrificeInfo"]
-		end,
-		function(gridEntity)
-			return EID.isRepentance and EID.Config["DisplaySanguineInfo"] and
-				Game():GetRoom():GetType() == RoomType.ROOM_DEVIL and
-				EID:PlayersHaveCollectible(CollectibleType.COLLECTIBLE_SANGUINE_BOND)
-		end,
-	},
-}
-
---maps the Player transformation from the enum PlayerForm to the internal transformation table
--- Possible usages:		EID.TRANSFORMATION[ PlayerForm.PLAYERFORM_MUSHROOM ]
--- 						EID.TRANSFORMATION.MUSHROOM
-EID.TRANSFORMATION = {
-	["GUPPY"] = 1,
-	["LORD_OF_THE_FLIES"] = 3,
-	["MUSHROOM"] = 2,
-	["ANGEL"] = 10,
-	["BOB"] = 8,
-	["SPUN"] = 5,
-	["MOM"] = 6,
-	["CONJOINED"] = 4,
-	["LEVIATHAN"] = 9,
-	["POOP"] = 7,
-	["BOOKWORM"] = 12,
-	["ADULT"] = 14,
-	["SPIDERBABY"] = 13,
-	["SUPERBUM"] = 11,
-	["STOMPY"] = 15
-}
-
 -- List of item Types
 EID.ItemTypeAnm2Names = {
 	[ItemType.ITEM_NULL + 1] = "null",
@@ -145,7 +108,6 @@ EID.TextReplacementPairs = {
 	{"{{Hashtag}}", "ǂ"}, -- Hashtag
 	{"{{CR}}", "{{ColorReset}}"}, -- Shortcut for Color Resetting
 	{"{{EthernalHeart}}", "{{EternalHeart}}"}, -- fix spelling error
-	{"{{CONFIG_BoC_Toggle}}", function(_) return EID.ButtonToIconMap[EID.Config["BagOfCraftingToggleKey"]] or "{{ButtonSelect}}" end},
 	-- more common/official names
 	{"{{MimicChest}}", "{{TrapChest}}"},
 	{"{{EternalChest}}", "{{HolyChest}}"},
@@ -347,26 +309,6 @@ EID.InlineIcons = {
 	["RoomLBottomRight"] = {"roomshape", 11, 11, 10, 0, 1},
 	["RedRoom"] = {"roomshape", 12, 10, 9, 0, 2},
 
-	-- Transformation Icons
-	["CustomTransformation"] = {"TransformationCustom", 0, 16, 16, 0, -1, EID.IconSprite},
-	["Guppy"] = {"Transformation1", 0, 16, 16, 0, -1, EID.IconSprite},
-	["FunGuy"] = {"Transformation2", 0, 16, 16, 0, -1, EID.IconSprite},
-	["LordoftheFlies"] = {"Transformation3", 0, 16, 16, 0, -1, EID.IconSprite},
-	["Beelzebub"] = {"Transformation3", 0, 16, 16, 0, -1, EID.IconSprite},
-	["Conjoined"] = {"Transformation4", 0, 16, 16, 0, -1, EID.IconSprite},
-	["Spun"] = {"Transformation5", 0, 16, 16, 0, -1, EID.IconSprite},
-	["Mom"] = {"Transformation6", 0, 16, 16, 0, -1, EID.IconSprite},
-	["YesMother?"] = {"Transformation6", 0, 16, 16, 0, -1, EID.IconSprite},
-	["OhCrap"] = {"Transformation7", 0, 16, 16, 0, -1, EID.IconSprite},
-	["Bob"] = {"Transformation8", 0, 16, 16, 0, -1, EID.IconSprite},
-	["Leviathan"] = {"Transformation9", 0, 16, 16, 0, -1, EID.IconSprite},
-	["Seraphim"] = {"Transformation10", 0, 16, 16, 0, -1, EID.IconSprite},
-	["SuperBum"] = {"Transformation11", 0, 16, 16, 0, -1, EID.IconSprite},
-	["Bookworm"] = {"Transformation12", 0, 16, 16, 0, -1, EID.IconSprite},
-	["SpiderBaby"] = {"Transformation13", 0, 16, 16, 0, -1, EID.IconSprite},
-	["Adult"] = {"Transformation14",0,16, 16, 0, -1, EID.IconSprite},
-	["Stompy"] = {"Transformation15",0,16, 16, 0, -1, EID.IconSprite},
-
 	-- Quality
 	["Quality0"] = {"Quality", 0, 10, 10, 0, 0},
 	["Quality1"] = {"Quality", 1, 10, 10, 0, 0},
@@ -392,39 +334,6 @@ EID.InlineIcons = {
 	["ButtonSelect"] = {"XboxOne", 14, 12, 8, 6, 5, function(_) return getControllerSprite() end},
 	["ButtonMenu"] = {"XboxOne", 15, 12, 8, 6, 5, function(_) return getControllerSprite() end},
 	["ButtonEnter"] = {"XboxOne", 16, 12, 8, 6, 5, EID.InlineIconSprite},
-
-	-- Crafting
-	["Crafting0"] = {"Crafting", 0, 14, 16, 0, 1},
-	["Crafting1"] = {"Crafting", 1, 14, 16, 0, 1},
-	["Crafting2"] = {"Crafting", 2, 14, 16, 0, 1},
-	["Crafting3"] = {"Crafting", 3, 14, 16, 0, 1},
-	["Crafting4"] = {"Crafting", 4, 14, 16, 0, 1},
-	["Crafting5"] = {"Crafting", 5, 14, 16, 0, 1},
-	["Crafting6"] = {"Crafting", 6, 14, 16, 0, 1},
-	["Crafting7"] = {"Crafting", 7, 14, 16, 0, 0},
-	["Crafting8"] = {"Crafting", 8, 14, 16, 0, 1},
-	["Crafting9"] = {"Crafting", 9, 14, 16, 0, 1},
-	["Crafting10"] = {"Crafting", 10, 14, 16, 0, 1},
-	["Crafting11"] = {"Crafting", 11, 14, 16, 0},
-	["Crafting12"] = {"Crafting", 12, 14, 16, 0, -1},
-	["Crafting13"] = {"Crafting", 13, 14, 16, 0, -1},
-	["Crafting14"] = {"Crafting", 14, 14, 16, -2, -2},
-	["Crafting15"] = {"Crafting", 15, 14, 16, -2, -2},
-	["Crafting16"] = {"Crafting", 16, 14, 16, -2, -2},
-	["Crafting17"] = {"Crafting", 17, 14, 16, -1, -2},
-	["Crafting18"] = {"Crafting", 18, 14, 16, 0, 1},
-	["Crafting19"] = {"Crafting", 19, 14, 16, 0, -1},
-	["Crafting20"] = {"Crafting", 20, 14, 16, 0, -2},
-	["Crafting21"] = {"Crafting", 21, 14, 16, 0, -1},
-	["Crafting22"] = {"Crafting", 22, 14, 16, 0, 1},
-	["Crafting23"] = {"Crafting", 23, 14, 16, 0, -1},
-	["Crafting24"] = {"Crafting", 24, 14, 16, 0, 1},
-	["Crafting25"] = {"Crafting", 25, 14, 16, 0, 3},
-	["Crafting26"] = {"Crafting", 26, 14, 16, 0, -1},
-	["Crafting27"] = {"Crafting", 27, 14, 16, 0, 1},
-	["Crafting28"] = {"Crafting", 28, 14, 16, 0, -1},
-	["Crafting29"] = {"Crafting", 29, 14, 16, 0, -1},
-	["Crafting30"] = {"Crafting", 30, 14, 16, 0},
 
 	--Poop Spells
 	["PoopSpell1"] = {"PoopSpells", 1, 16, 16, -2, -2}, --Normal
@@ -708,13 +617,11 @@ end
 EID.InlineColors = {
 	-- Default colors
 	["ColorText"] = function(_)	return EID:getTextColor() end,
-	["ColorTransform"] = function(_) return EID:getTransformationColor() end,
 	["ColorError"] = function(_) return EID:getErrorColor() end,
 	["ColorObjName"] = function(_) return EID:getNameColor() end,
 	["ColorReset"] = function(_) return EID.LastRenderCallColor end,
 	-- Basic Colors
 	["ColorEIDText"] = KColor(1, 1, 1, 1),
-	["ColorEIDTransform"] = KColor(0.5, 0.5, 1, 1),
 	["ColorEIDError"] = KColor(1, 0.4, 0.4, 1),
 	["ColorEIDObjName"] = KColor(0.8, 0.3, 0.8, 1),
 	["ColorBlack"] = KColor(0, 0, 0, 1),
@@ -943,26 +850,6 @@ EID.StatPickupBulletpointBlacklist = {
 	["{{BlackHeart}}"] = true,
 }
 
-EID.TransformationData = {
-	-- Structure: [Internal Name of Transformation] = {NumNeeded = 3 (Default), VanillaForm = nil (default)}
-	[tostring(EID.TRANSFORMATION.GUPPY)] = {VanillaForm = PlayerForm.PLAYERFORM_GUPPY},
-	[tostring(EID.TRANSFORMATION.LORD_OF_THE_FLIES)] = {VanillaForm = PlayerForm.PLAYERFORM_LORD_OF_THE_FLIES},
-	[tostring(EID.TRANSFORMATION.MUSHROOM)] = {VanillaForm = PlayerForm.PLAYERFORM_MUSHROOM},
-	[tostring(EID.TRANSFORMATION.ANGEL)] = {VanillaForm = PlayerForm.PLAYERFORM_ANGEL},
-	[tostring(EID.TRANSFORMATION.BOB)] = {VanillaForm = PlayerForm.PLAYERFORM_BOB},
-	[tostring(EID.TRANSFORMATION.SPUN)] = {VanillaForm = PlayerForm.PLAYERFORM_DRUGS},
-	[tostring(EID.TRANSFORMATION.MOM)] = {VanillaForm = PlayerForm.PLAYERFORM_MOM},
-	[tostring(EID.TRANSFORMATION.CONJOINED)] = {VanillaForm = PlayerForm.PLAYERFORM_BABY},
-	[tostring(EID.TRANSFORMATION.LEVIATHAN)] = {VanillaForm = PlayerForm.PLAYERFORM_EVIL_ANGEL},
-	[tostring(EID.TRANSFORMATION.POOP)] = {VanillaForm = PlayerForm.PLAYERFORM_POOP},
-	[tostring(EID.TRANSFORMATION.BOOKWORM)] = {VanillaForm = PlayerForm.PLAYERFORM_BOOK_WORM},
-	[tostring(EID.TRANSFORMATION.ADULT)] = {VanillaForm = PlayerForm.PLAYERFORM_ADULTHOOD},
-	[tostring(EID.TRANSFORMATION.SPIDERBABY)] = {VanillaForm = PlayerForm.PLAYERFORM_SPIDERBABY},
-	[tostring(EID.TRANSFORMATION.SUPERBUM)] = {},
-	[tostring(EID.TRANSFORMATION.STOMPY)] = {VanillaForm = EID.isRepentance and PlayerForm.PLAYERFORM_STOMPY}
-}
-
-
 EID.RoomShapeToMarkup = { "{{Room}}", "{{RoomSmallHorizontal}}", "{{RoomSmallVertical}}", "{{RoomLongVertical}}", "{{RoomLongThinVertical}}","{{RoomLongHorizontal}}", "{{RoomLongThinHorizontal}}", "{{RoomXL}}", "{{RoomLTopLeft}}", "{{RoomL}}", "{{RoomLBottomLeft}}", "{{RoomLBottomRight}}" }
 EID.RoomTypeToMarkup = { "{{Room}}", "{{Shop}}", "{{ErrorRoom}}", "{{TreasureRoom}}", "{{BossRoom}}", "{{MiniBoss}}", "{{SecretRoom}}", "{{SuperSecretRoom}}", "{{ArcadeRoom}}", "{{CursedRoom}}", "{{ChallengeRoom}}", "{{Library}}", "{{SacrificeRoom}}", "{{DevilRoom}}", "{{AngelRoom}}", "{{LadderRoom}}", "{{Room}}" --[[boss rush]], "{{IsaacsRoom}}", "{{BarrenRoom}}", "{{ChestRoom}}", "{{DiceRoom}}", "{{Shop}}", "{{Room}}", --[[Black Market / Greed Exit]] "{{Planetarium}}", "{{Teleporter}}","{{Teleporter}}", "{{Room}}", "{{Room}}" --[[Blue Key rooms]], "{{UltraSecretRoom}}" }
 EID.ItemPoolTypeToMarkup = { [0] = "{{ItemPoolTreasure}}", "{{ItemPoolShop}}", "{{ItemPoolBoss}}", "{{ItemPoolDevil}}", "{{ItemPoolAngel}}", "{{ItemPoolSecret}}", "{{ItemPoolLibrary}}", "{{ItemPoolShellGame}}", "{{ItemPoolGoldenChest}}", "{{ItemPoolRedChest}}", "{{ItemPoolBeggar}}", "{{ItemPoolDemonBeggar}}", "{{ItemPoolCurse}}", "{{ItemPoolKeyMaster}}", "{{ItemPoolBombBum}}", "{{ItemPoolMomsChest}}", "{{ItemPoolGreedTreasure}}", "{{ItemPoolGreedShop}}", "{{ItemPoolGreedBoss}}", "{{ItemPoolGreedDevil}}", "{{ItemPoolGreedAngel}}", "{{ItemPoolGreedCurse}}", "{{ItemPoolGreedSecret}}", "{{ItemPoolCraneGame}}", "{{ItemPoolUltraSecret}}", "{{ItemPoolBatteryBum}}", "{{ItemPoolPlanetarium}}", "{{ItemPoolOldChest}}", "{{ItemPoolBabyShop}}", "{{ItemPoolWoodenChest}}", "{{ItemPoolRottenBeggar}}"}
@@ -973,74 +860,6 @@ EID.LocalModePositionOffset = {
 	Default = Vector(0, 20),
 	Shop = function(entity) if EID:EntitySanityCheck(entity) and not EID:IsGridEntity(entity) and entity:ToPickup() and entity:ToPickup():IsShopItem() then return Vector(0, 35) end end,
 }
-
--- Actives that have no additional effect from Car Battery
-EID.CarBatteryNoSynergy = { [33] = true, [34] = true, [36] = true, [39] = true, [40] = true, [41] = true, [42] = true, [44] = true, [47] = true, [49] = true, [56] = true, [84] = true, [126] = true, [127] = true, [130] = true, [133] = true, [135] = true, [137] = true, [147] = true, [164] = true, [166] = true, [175] = true, [177] = true, [181] = true, [186] = true, [192] = true, [282] = true, [285] = true, [289] = true, [290] = true, [291] = true, [295] = true, [296] = true, [297] = true, [323] = true, [324] = true, [325] = true, [326] = true, [338] = true, [347] = true, [352] = true, [382] = true, [386] = true, [396] = true, [406] = true, [419] = true, [422] = true, [434] = true, [437] = true, [441] = true, [475] = true, [478] = true, [479] = true, [483] = true, [484] = true, [487] = true, [490] = true, [512] = true, [515] = true, [522] = true, [527] = true, [536] = true, [552] = true }
-if EID.isRepentance then
-	EID.CarBatteryNoSynergy[34] = false -- The Book of Belial
-	EID.CarBatteryNoSynergy[284] = true -- D4 (essentially does nothing)
-	EID.CarBatteryNoSynergy[285] = false -- D10
-	EID.CarBatteryNoSynergy[296] = false -- Converter
-	EID.CarBatteryNoSynergy[323] = false -- Isaac's Tears
-	EID.CarBatteryNoSynergy[386] = false -- D12
-	EID.CarBatteryNoSynergy[421] = true -- Kidney Bean
-	EID.CarBatteryNoSynergy[522] = false -- Telekinesis
-	EID.CarBatteryNoSynergy[523] = true -- Moving Box
-	-- Repentance actives
-	EID.CarBatteryNoSynergy[555] = true; EID.CarBatteryNoSynergy[577] = true; EID.CarBatteryNoSynergy[578] = true; EID.CarBatteryNoSynergy[580] = true;
-	EID.CarBatteryNoSynergy[585] = true; EID.CarBatteryNoSynergy[604] = true; EID.CarBatteryNoSynergy[622] = true; EID.CarBatteryNoSynergy[623] = true;
-	EID.CarBatteryNoSynergy[628] = true; EID.CarBatteryNoSynergy[636] = true; EID.CarBatteryNoSynergy[638] = true; EID.CarBatteryNoSynergy[640] = true;
-	EID.CarBatteryNoSynergy[653] = true; EID.CarBatteryNoSynergy[655] = true; EID.CarBatteryNoSynergy[703] = true; EID.CarBatteryNoSynergy[706] = true;
-	EID.CarBatteryNoSynergy[709] = true; EID.CarBatteryNoSynergy[710] = true; EID.CarBatteryNoSynergy[711] = true; EID.CarBatteryNoSynergy[714] = true;
-	EID.CarBatteryNoSynergy[715] = true; EID.CarBatteryNoSynergy[728] = true; EID.CarBatteryNoSynergy[729] = true;
-end
--- Items that should show their Car Battery synergy while looking at a Car Battery pedestal
--- Void, Crooked Penny, Metronome, Moving Box, Broken Shovel
-EID.CarBatteryPedestalWhitelist = { [477] = true, [485] = true, [488] = true, [523] = true, [550] = true }
-if EID.isRepentance then
-	EID.CarBatteryPedestalWhitelist[523] = nil -- Moving Box
-	EID.CarBatteryPedestalWhitelist[386] = true -- D12
-	EID.CarBatteryPedestalWhitelist[611] = true -- Larynx
-	EID.CarBatteryPedestalWhitelist[635] = true -- Stitches
-	EID.CarBatteryPedestalWhitelist[685] = true -- Jar of Wisps
-	EID.CarBatteryPedestalWhitelist[720] = true -- Everything Jar
-	EID.CarBatteryPedestalWhitelist[722] = true -- Anima Sola
-end
-
--- Familiars that have no effect from BFFS!
-EID.BFFSNoSynergy = { [10] = true, [11] = true, [81] = true, [178] = true, [238] = true, [239] = true, [243] = true, [265] = true, [268] = true, [269] = true, [276] = true, [278] = true, [280] = true, [281] = true, [387] = true, [404] = true, [431] = true, [433] = true, [436] = true, [467] = true, [469] = true, [472] = true, [492] = true, [504] = true, [516] = true, [528] = true, [542] = true, [543] = true }
-if EID.isRepentance then
-	EID.BFFSNoSynergy[178] = false -- Holy Water
-	EID.BFFSNoSynergy[276] = false -- Isaac's Heart
-	EID.BFFSNoSynergy[325] = true -- Scissors
-	EID.BFFSNoSynergy[405] = true -- GB Bug
-	EID.BFFSNoSynergy[467] = false -- Finger!
-	EID.BFFSNoSynergy[504] = false -- Brown Nugget
-	EID.BFFSNoSynergy[567] = true -- Paschal Candle
-	EID.BFFSNoSynergy[615] = true -- Lil Dumpy (I couldn't notice any change anyway)
-	EID.BFFSNoSynergy[651] = true -- Star of Bethlehem
-	EID.BFFSNoSynergy[697] = true -- Vanishing Twin
-end
--- Items that should show their BFFS / Hive Mind synergy while looking at a BFFS / Hive Mind pedestal
--- Charged Baby, Key Bum, Spider Mod, Succubus, Lil Spewer, Mystery Egg
-EID.BFFSPedestalWhitelist = { [372] = true, [388] = true, [403] = true, [417] = true, [537] = true, [539] = true }
-if EID.isRepentance then
-	EID.BFFSPedestalWhitelist[276] = true -- Isaac's Heart
-	EID.BFFSPedestalWhitelist[569] = true -- Blood Oath
-	EID.BFFSPedestalWhitelist[584] = true -- Book of Virtues
-	EID.BFFSPedestalWhitelist[612] = true -- Lost Soul
-	EID.BFFSPedestalWhitelist[635] = true -- Stitches
-	EID.BFFSPedestalWhitelist[685] = true -- Jar of Wisps
-	EID.BFFSPedestalWhitelist[702] = true -- Vengeful Spirit
-	EID.BFFSPedestalWhitelist[706] = true -- Abyss
-	EID.BFFSPedestalWhitelist[712] = true -- Lemegeton
-	EID.BFFSPedestalWhitelist[713] = true -- Sumptorium
-end
-
--- Familiars that count for Hive Mind in Repentance (although it could give them No Effect if it just increases size)
-EID.HiveMindFamiliars = { [10] = true, [57] = true, [128] = true, [170] = true, [264] = true, [272] = true, [274] = true, [279] = true, [320] = true, [364] = true, [365] = true, [403] = true, [426] = true, [430] = true, [504] = true, [511] = true, [575] = true, [581] = true, [629] = true, [649] = true, [650] = true, [706] = true, }
--- Familiars that count for Hive Mind but should be ignored by BFFS (not used yet, maybe used by modded item conditionals)
-EID.BFFSIgnore = {}
 
 
 -- Tainted character's respective normal version ID, for conditionals that apply to both versions of the character
@@ -1139,171 +958,3 @@ if not EID.isRepentance then return end
 EID.SalvageTrinkets = { [34] = "5.10", [36] = "5.30", [41] = "5.40", [44] = "5.70", [45] = "5.300" }
 EID.SalvageRoomTypes = { [3] = "5.10.6", [19] = "5.10.6", [4] = "5.10.4", [20] = "5.10.4", [5] = "5.10.11", [22] = "5.10.11", [9] = "5.300.78", [12] = "5.10.12", [21] = "5.10.12", [26] = "5.301" }
 EID.PickupStartsWithVowel = { ["5.10.4"] = true } -- this is just for Eternal Heart in salvage descriptions right now...
-
-EID.BoC = {}
-
-EID.BoC.PickupValues = {
-	0x00000000, -- 0 None
-	-- Hearts
-	0x00000001, -- 1 Red Heart
-	0x00000004, -- 2 Soul Heart
-	0x00000005, -- 3 Black Heart
-	0x00000005, -- 4 Eternal Heart
-	0x00000005, -- 5 Gold Heart
-	0x00000005, -- 6 Bone Heart
-	0x00000001, -- 7 Rotten Heart
-	-- Pennies
-	0x00000001, -- 8 Penny
-	0x00000003, -- 9 Nickel
-	0x00000005, -- 10 Dime
-	0x00000008, -- 11 Lucky Penny
-	-- Keys
-	0x00000002, -- 12 Key
-	0x00000007, -- 13 Golden Key
-	0x00000005, -- 14 Charged Key
-	-- Bombs
-	0x00000002, -- 15 Bomb
-	0x00000007, -- 16 Golden Bomb
-	0x0000000a, -- 17 Giga Bomb
-	-- Batteries
-	0x00000002, -- 18 Micro Battery
-	0x00000004, -- 19 Lil' Battery
-	0x00000008, -- 20 Mega Battery
-	-- Usables
-	0x00000002, -- 21 Card
-	0x00000002, -- 22 Pill
-	0x00000004, -- 23 Rune
-	0x00000004, -- 24 Dice Shard
-	0x00000002, -- 25 Cracked Key
-	-- Added in Update
-	0x00000007, -- 26 Golden Penny
-	0x00000007, -- 27 Golden Pill
-	0x00000007, -- 28 Golden Battery
-	0x00000000, -- 29 Tainted ??? Poop
-  
-	0x00000001,
-  }
-
-EID.BoC.PickupIDLookup = {
-	["10.1"] = {1}, -- Red heart
-	["10.2"] = {1}, -- half heart
-	["10.3"] = {2}, -- soul heart
-	["10.4"] = {4}, -- eternal heart
-	["10.5"] = {1, 1}, -- double heart
-	["10.6"] = {3}, -- black heart
-	["10.7"] = {5}, -- gold heart
-	["10.8"] = {2}, -- half soul heart
-	["10.9"] = {1}, -- scared red heart
-	["10.10"] = {2, 1}, -- blended heart
-	["10.11"] = {6}, -- Bone heart
-	["10.12"] = {7}, -- Rotten heart
-	["20.1"] = {8}, -- Penny
-	["20.2"] = {9}, -- Nickel
-	["20.3"] = {10}, -- Dime
-	["20.4"] = {8, 8}, -- Double penny
-	["20.5"] = {11}, -- Lucky Penny
-	["20.6"] = {9}, -- Sticky Nickel
-	["20.7"] = {26}, -- Golden Penny
-	["30.1"] = {12}, -- Key
-	["30.2"] = {13}, -- golden Key
-	["30.3"] = {12,12}, -- Key Ring
-	["30.4"] = {14}, -- charged Key
-	["40.1"] = {15}, -- bomb
-	["40.2"] = {15,15}, -- double bomb
-	["40.4"] = {16}, -- golden bomb
-	["40.7"] = {17}, -- giga bomb
-	["42.0"] = {29}, -- poop nugget
-	["42.1"] = {29}, -- big poop nugget
-	["70.14"] = {27}, -- golden pill
-	["70.2062"] = {27}, -- golden horse pill
-	["90.1"] = {19}, -- Lil Battery
-	["90.2"] = {18}, -- Micro Battery
-	["90.3"] = {20}, -- Mega Battery
-	["90.4"] = {28}, -- Golden Battery
-	["300.49"] = {24}, -- Dice shard
-	["300.50"] = {21}, -- Emergency Contact
-	["300.78"] = {25}, -- Cracked key
-}
-
-EID.BoC.ComponentShifts = {
-	{0x00000001, 0x00000005, 0x00000010},
-	{0x00000001, 0x00000005, 0x00000013},
-	{0x00000001, 0x00000009, 0x0000001D},
-	{0x00000001, 0x0000000B, 0x00000006},
-	{0x00000001, 0x0000000B, 0x00000010},
-	{0x00000001, 0x00000013, 0x00000003},
-	{0x00000001, 0x00000015, 0x00000014},
-	{0x00000001, 0x0000001B, 0x0000001B},
-	{0x00000002, 0x00000005, 0x0000000F},
-	{0x00000002, 0x00000005, 0x00000015},
-	{0x00000002, 0x00000007, 0x00000007},
-	{0x00000002, 0x00000007, 0x00000009},
-	{0x00000002, 0x00000007, 0x00000019},
-	{0x00000002, 0x00000009, 0x0000000F},
-	{0x00000002, 0x0000000F, 0x00000011},
-	{0x00000002, 0x0000000F, 0x00000019},
-	{0x00000002, 0x00000015, 0x00000009},
-	{0x00000003, 0x00000001, 0x0000000E},
-	{0x00000003, 0x00000003, 0x0000001A},
-	{0x00000003, 0x00000003, 0x0000001C},
-	{0x00000003, 0x00000003, 0x0000001D},
-	{0x00000003, 0x00000005, 0x00000014},
-	{0x00000003, 0x00000005, 0x00000016},
-	{0x00000003, 0x00000005, 0x00000019},
-	{0x00000003, 0x00000007, 0x0000001D},
-	{0x00000003, 0x0000000D, 0x00000007},
-	{0x00000003, 0x00000017, 0x00000019},
-	{0x00000003, 0x00000019, 0x00000018},
-	{0x00000003, 0x0000001B, 0x0000000B},
-	{0x00000004, 0x00000003, 0x00000011},
-	{0x00000004, 0x00000003, 0x0000001B},
-	{0x00000004, 0x00000005, 0x0000000F},
-	{0x00000005, 0x00000003, 0x00000015},
-	{0x00000005, 0x00000007, 0x00000016},
-	{0x00000005, 0x00000009, 0x00000007},
-	{0x00000005, 0x00000009, 0x0000001C},
-	{0x00000005, 0x00000009, 0x0000001F},
-	{0x00000005, 0x0000000D, 0x00000006},
-	{0x00000005, 0x0000000F, 0x00000011},
-	{0x00000005, 0x00000011, 0x0000000D},
-	{0x00000005, 0x00000015, 0x0000000C},
-	{0x00000005, 0x0000001B, 0x00000008},
-	{0x00000005, 0x0000001B, 0x00000015},
-	{0x00000005, 0x0000001B, 0x00000019},
-	{0x00000005, 0x0000001B, 0x0000001C},
-	{0x00000006, 0x00000001, 0x0000000B},
-	{0x00000006, 0x00000003, 0x00000011},
-	{0x00000006, 0x00000011, 0x00000009},
-	{0x00000006, 0x00000015, 0x00000007},
-	{0x00000006, 0x00000015, 0x0000000D},
-	{0x00000007, 0x00000001, 0x00000009},
-	{0x00000007, 0x00000001, 0x00000012},
-	{0x00000007, 0x00000001, 0x00000019},
-	{0x00000007, 0x0000000D, 0x00000019},
-	{0x00000007, 0x00000011, 0x00000015},
-	{0x00000007, 0x00000019, 0x0000000C},
-	{0x00000007, 0x00000019, 0x00000014},
-	{0x00000008, 0x00000007, 0x00000017},
-	{0x00000008, 0x00000009, 0x00000017},
-	{0x00000009, 0x00000005, 0x0000000E},
-	{0x00000009, 0x00000005, 0x00000019},
-	{0x00000009, 0x0000000B, 0x00000013},
-	{0x00000009, 0x00000015, 0x00000010},
-	{0x0000000A, 0x00000009, 0x00000015},
-	{0x0000000A, 0x00000009, 0x00000019},
-	{0x0000000B, 0x00000007, 0x0000000C},
-	{0x0000000B, 0x00000007, 0x00000010},
-	{0x0000000B, 0x00000011, 0x0000000D},
-	{0x0000000B, 0x00000015, 0x0000000D},
-	{0x0000000C, 0x00000009, 0x00000017},
-	{0x0000000D, 0x00000003, 0x00000011},
-	{0x0000000D, 0x00000003, 0x0000001B},
-	{0x0000000D, 0x00000005, 0x00000013},
-	{0x0000000D, 0x00000011, 0x0000000F},
-	{0x0000000E, 0x00000001, 0x0000000F},
-	{0x0000000E, 0x0000000D, 0x0000000F},
-	{0x0000000F, 0x00000001, 0x0000001D},
-	{0x00000011, 0x0000000F, 0x00000014},
-	{0x00000011, 0x0000000F, 0x00000017},
-	{0x00000011, 0x0000000F, 0x0000001A}
-}

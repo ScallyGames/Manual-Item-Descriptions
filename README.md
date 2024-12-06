@@ -1,4 +1,4 @@
-[![Steam Downloads](https://img.shields.io/steam/downloads/836319872?color=blue&label=Downloads&logo=steam&logoColor=white?label=Steam%20Downloads)](https://steamcommunity.com/sharedfiles/filedetails/?id=836319872) [![Github Downloads](https://img.shields.io/github/downloads/wofsauge/External-Item-Descriptions/total?label=Github%20Downloads)](https://github.com/wofsauge/External-Item-Descriptions) [![Discord](https://img.shields.io/discord/927985880021483571?color=blue&label=Discord&logo=Discord&logoColor=white)](https://discord.gg/435qCC6nHt)
+[![Steam Downloads](https://img.shields.io/steam/downloads/3378810576?color=blue&label=Downloads&logo=steam&logoColor=white?label=Steam%20Downloads)](https://steamcommunity.com/sharedfiles/filedetails/?id=3378810576) [![Github Downloads](https://img.shields.io/github/downloads/wofsauge/External-Item-Descriptions/total?label=Github%20Downloads)](https://github.com/wofsauge/External-Item-Descriptions) [![Discord](https://img.shields.io/discord/927985880021483571?color=blue&label=Discord&logo=Discord&logoColor=white)](https://discord.gg/435qCC6nHt)
 
 # External Item Descriptions
 A mod for the game "The Binding of Isaac: Rebirth" that displays useful information for items, trinkets, rooms and more!
@@ -20,14 +20,14 @@ This version is designed to be used with the Afterbirth+ and Repentance DLCs.
 - **Press F2 to hide/show the descriptions!**
 
 ## Supported Languages
-Chinese, Czech, Dutch, English, French, German, Italian, Japanese, Korean, Polish, Portuguese, Russian, Spanish, Brazilian-Portuguese, Turkish, Ukrainian
+English
 
 ## Versions
 There are multiple Versions of the mod, depending on which DLCs you have installed. You are currently looking at the version for Afterbirth+ and Repentance.
 
 - Rebirth (no DLCs): [MediaFire](https://www.mediafire.com/download/allrnsejnuwi1lu/External_Item_Descriptions_-_Rebirth.zip)
 - Afterbirth (first DLC): [ModdingOfIsaac.com](https://moddingofisaac.com/mod/1079/external-item-descriptions) - [MediaFire mirror](https://www.mediafire.com/file/guxc33u2x252aux/external-item-descriptions_-_Afterbirth_3.7.zip/file)
-- Afterbirth+ and Repentance: [Steam Workshop](https://steamcommunity.com/sharedfiles/filedetails/?id=836319872) - [GitHub](https://github.com/wofsauge/External-Item-Descriptions/releases)
+- Afterbirth+ and Repentance: [Steam Workshop](https://steamcommunity.com/sharedfiles/filedetails/?id=3378810576) - [GitHub](https://github.com/wofsauge/External-Item-Descriptions/releases)
 
 ## Installation
 For **Steam users**, simply press the "Subscribe" button on the mod's Steam Workshop page. This will automatically install the mod for you.

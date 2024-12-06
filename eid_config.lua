@@ -2,26 +2,7 @@ EID.UserConfig = {
 	-------GENERAL---------
 	-- Change the language of the mod
 	-- Currently Supported: automatic = "auto"				(Default) Chooses the mod language based on your game's language settings(Rep), or defaults to English for ab+ users.
-	--						Bulgarian = "bul"				SPECIAL THANKS TO Gothika_47
-	--						Chinese = "zh_cn"				SPECIAL THANKS TO Xheepey87, frto027
-	--						Czech = "cs_cz"					SPECIAL THANKS TO domcizzz
-	--						Dutch = "nl_nl"					SPECIAL THANKS TO SomethingMax
 	--						English = "en_us"				SPECIAL THANKS TO everyone!
-	--						French = "fr"					SPECIAL THANKS TO biobak
-	--						German = "de"					SPECIAL THANKS TO Jake
-	--						Greek = "el_gr"					SPECIAL THANKS TO vanillarat
-	--						Italian = "it"					SPECIAL THANKS TO Denkishi, 2G
-	--						Japanese = "ja_jp"				SPECIAL THANKS TO prefab
-	--						Korean = "ko_kr"				SPECIAL THANKS TO Blackcreamtea, 리셰(kohashiwakaba)
-	--						Polish = "pl"					SPECIAL THANKS TO Rickyy
-	--						Portuguese = "pt"				SPECIAL THANKS TO Marcelino Cruz
-	--						Brazilian Portuguese = "pt_br"	SPECIAL THANKS TO Marcelino Cruz
-	--						Russian = "ru"					SPECIAL THANKS TO hell2pay, fly_6
-	--						Spanish = "spa"					SPECIAL THANKS TO Lidia Arroyo Purroy
-	--						Turkish = "tr_tr"				SPECIAL THANKS TO Mert Dutal
-	--						Ukrainian = "uk_ua"				SPECIAL THANKS TO x3xto
-	--
-	-- If you want to make a translation, please contact me :) (wofsauge)
 	--
 	["Language"] = "auto",
 	-- Change if item names should be displayed in English, your translated language or both
@@ -54,7 +35,7 @@ EID.UserConfig = {
 	-- Default = 45
 	["YPosition"] = 45,
 	-- Set the height of a line, effectivly changing the distance between two lines of text
-	-- Default = 11	(11 for English, 14 for Korean / Chinese)
+	-- Default = 11
 	["LineHeight"] = 11,
 	-- Set the distance between an item and its information display (in tiles)
 	-- Default = 5
@@ -88,7 +69,7 @@ EID.UserConfig = {
 	-- Default = true
 	["DisableObstructionOnFlight"] = true,
 	-- If set to true, the mod will no longer display critical warnings during the start of a new game
-	-- Current warnings are: Achievements are locked, outdated game version, and potentially having inaccurate modded Bag of Crafting recipes
+	-- Current warnings are: Achievements are locked and outdated game version
 	-- Default = false
 	["DisableStartOfRunWarnings"] = false,
 	-- ColorblindMode
@@ -208,22 +189,6 @@ EID.UserConfig = {
 	-- Default = "ColorLightOrange"
 	["ModIndicatorTextColor"] = "ColorLightOrange",
 
-	---------- Transformations ----------
-
-	-- Toggle display of transformation names
-	-- Default = true
-	["TransformationText"] = true,
-	-- Toggle display of transformation icons
-	-- Default = true
-	["TransformationIcons"] = true,
-	-- Toggle display of transformation progress
-	-- Default = true
-	["TransformationProgress"] = true,
-	-- Set the color of the Transformation description text
-	-- Color names are defined in "eid_data.lua" (line 300)
-	-- Default = "ColorEIDTransform"
-	["TransformationColor"] = "ColorEIDTransform",
-
 	---------- Cards ----------
 
 	-- Toggle display of Card or Rune descriptions
@@ -271,54 +236,12 @@ EID.UserConfig = {
 	-- Default = false
 	["ShowUnidentifiedPillDescriptions"] = false,
 
-	---------- Glitched Items ---------
-
-	-- Toggle Display of Glitched Item (TMTRAINER) descriptions
-	-- Note: Installing REPENTOGON is required for more detailed glitched item descriptions
-	-- Without REPENTOGON, you still can see the effect the item will have on your Hearts, and what stats it might modify
-	-- Default = false
-	["DisplayGlitchedItemInfo"] = false,
-
-	---------- Sacrifice Room ----------
-
-	-- Toggle display of the next Sacrifice Room payout description
-	-- Default = true
-	["DisplaySacrificeInfo"] = true,
-
-	---------- Sanguine Bond ----------
-
-	-- Toggle display of Sanguine Bond's list of possible payouts in Devil Rooms
-	-- REPENTANCE ONLY!
-	-- Default = true
-	["DisplaySanguineInfo"] = true,
-	-- Highlight what Sanguine Bond's next payout will be
-	-- REPENTANCE ONLY!
-	-- Default = false
-	["PredictionSanguineBond"] = false,
 
 	---------- Dice Room ----------
 
 	-- Toggle display of Dice Room descriptions
 	-- Default = true
 	["DisplayDiceInfo"] = true,
-
-	----------Crane Game ----------
-
-	-- Toggle display for items inside of a Crane Game
-	-- REPENTANCE ONLY!!!
-	-- Default = true
-	["DisplayCraneInfo"] = true,
-
-	---------- Void Stat Increases ----------
-	-- Toggle display of what stats will increase on Void absorption
-	-- Default = false
-	["DisplayVoidStatInfo"] = false,
-
-	---------- Flip Items ----------
-	-- If enabled, displays informations about the "ghost" item that is available for the other player when using the "Flip" item (T-Lazarus)
-	-- REPENTANCE ONLY!!!
-	-- Default = true
-	["DisplayFlipItemDescriptions"] = true,
 
 	---------- Item Reminder Description ------------
 	-- Enable/Disable item reminder feature.
@@ -331,10 +254,6 @@ EID.UserConfig = {
 	-- Disable inputs while Item Reminder is visible
 	-- Default = false
 	["ItemReminderDisableInputs"] = false,
-	-- Set the keybinding that's held to show the Item Reminder description, Flip/Spindown Dice preview descriptions, and interacting with the Bag of Crafting recipe list
-	-- Look into the AB+ or Repentance documentation for the key names here: https://wofsauge.github.io/IsaacDocs/rep/enums/ButtonAction.html
-	-- Default = ButtonAction.ACTION_MAP
-	["BagOfCraftingToggleKey"] = ButtonAction.ACTION_MAP,
 	-- Set the keybinding that is used to scroll thru the categories in the left direction
 	-- Look into the AB+ or Repentance documentation for the key names here: https://wofsauge.github.io/IsaacDocs/rep/enums/ButtonAction.html
 	-- Default = ButtonAction.ACTION_SHOOTLEFT
@@ -357,12 +276,6 @@ EID.UserConfig = {
 	-- Number of entries to display per category of the item description.
 	-- Default = 3
 	["ItemReminderMaxEntriesCount"] = 3,
-	-- Items that grant you items without saying what they are (like Zodiac, Liberty Cap) can have their current granted item revealed in the Item Reminder
-	-- Default = false
-	["ItemReminderShowHiddenInfo"] = false,
-	-- Some items (like Teleport!) can have their next result predicted and shown in the Item Reminder
-	-- Default = false
-	["ItemReminderShowRNGCheats"] = false,
 	
 	---------- Dynamic Descriptions ------------
 	-- Some descriptions can be completely different depending on what character you are, here you can disable the most extreme ones
@@ -370,82 +283,6 @@ EID.UserConfig = {
 	-- Changes Health Ups and removes healing effect text when playing as a character that can't have red health
 	-- Default = true
 	["DynamicHealthUps"] = true,
-	
-	-- As Tainted Cain, replaces pedestal descriptions with what they will turn 
-	-- REPENTANCE ONLY!!!
-	-- Default = true
-	["DisplayTCainSalvageResults"] = true,
-
-	---------- Bag of Crafting ------------
-
-	-- REPENTANCE ONLY!!!
-
-	-- When to show the Bag of Crafting display
-	-- Options: "always", "hold", "never"
-	-- "always" = Always show results, "hold" = Show when holding up bag, "never" = Never show results
-	-- Default = "always"
-	["DisplayBagOfCrafting"] = "always",
-	-- Display modes for the Bag of Crafting display
-	-- Options: "Recipe List", "Preview Only", "Item Probability", "Pickups Only"
-	-- The "Recipe List" is a detailed calculated list of recipes based on what you have available on the floor
-	-- "Learned Recipe List" only shows you recipes that you have discovered during that run, plus fixed recipes
-	-- "Preview Only" shows the description of the item you can currently craft in your bag
-	-- "Item Probability" shows percentages of what item you might get from your bag / best option on the floor, for a more intended experience
-	-- "Pickups Only" just shows the room/floor pickup count
-	-- Default = "Recipe List"
-	["BagOfCraftingDisplayRecipesMode"] = "Recipe List",
-	-- Hide the recipe list when in battle
-	-- Default = true
-	["BagOfCraftingHideInBattle"] = true,
-	-- Show the text for the Hide/Preview and Recipe List hotkeys
-	-- Default = true
-	["BagOfCraftingShowControls"] = true,
-	-- Sort bag recipes by quality and then alphabetically (to prioritize the best possible crafts),
-	-- or just alphabetically (to more easily find specific items if you don't know their quality)
-	-- Options: "Quality", "Name"
-	-- Default = "Quality"
-	["BagOfCraftingSortOrder"] = "Quality",
-	-- Changes the amount of results shown in the Bag of Crafting description
-	-- Higher numbers can cause more lag!
-	-- Default = 7
-	["BagOfCraftingResults"] = 7,
-	-- Changes the amount of ingredients for which every combination is checked
-	-- Higher numbers will cause lag spikes on new pickup sets!
-	-- Default = 12
-	["BagOfCraftingCombinationMax"] = 12,
-	-- Changes the amount of how many random recipes get calculated
-	-- Higher numbers will cause lag spikes on new pickup sets!
-	-- Default = 400
-	["BagOfCraftingRandomResults"] = 400,
-	-- Display craftable item names, moving the recipe to a new line
-	-- Default = false
-	["BagOfCraftingDisplayNames"] = false,
-	-- Display recipes as 8 icons instead of grouped ingredients
-	-- Default = false
-	["BagOfCraftingDisplayIcons"] = false,
-	-- Set the keybinding to toggle the crafting display, so you can see descriptions of items/pickups on the floor
-	-- Look into the AB+ or Repentance documentation for the key names here: https://wofsauge.github.io/IsaacDocs/rep/enums/Keyboard.html
-	-- Default = Keyboard.KEY_F3
-	["CraftingHideKey"] = Keyboard.KEY_F3,
-	-- Set the controller binding to toggle the crafting display, so you can see descriptions of items/pickups on the floor
-	-- Use the Controller names here: https://github.com/wofsauge/External-Item-Descriptions/blob/master/mod_config_menu.lua#L1 or a number
-	-- Of note are Controller.STICK_LEFT and Controller.STICK_RIGHT (pushing the sticks in), which aren't used in-game with default controls
-	-- Default = none (-1)
-	["CraftingHideButton"] = -1,
-	-- Set the keybinding to toggle viewing the description of the item ready to be crafted in the bag
-	-- Look into the AB+ or Repentance documentation for the key names here: https://wofsauge.github.io/IsaacDocs/rep/enums/Keyboard.html
-	-- Default = Keyboard.KEY_F4
-	["CraftingResultKey"] = Keyboard.KEY_F4,
-	-- Set the controller binding to toggle viewing the description of the item ready to be crafted in the bag
-	-- Use the controller names here: https://github.com/wofsauge/External-Item-Descriptions/blob/master/mod_config_menu.lua#L1 or a number
-	-- Of note are Controller.STICK_LEFT and Controller.STICK_RIGHT (pushing the sticks in), which aren't used in-game with default controls
-	-- Default = none (-1)
-	["CraftingResultButton"] = -1,
-	-- Set the keybinding to toggle the search feature on and off
-	-- Look into the AB+ or Repentance documentation for the key names here: https://wofsauge.github.io/IsaacDocs/rep/enums/Keyboard.html
-	-- Default = Keyboard.KEY_RIGHT_SHIFT
-	["CraftingSearchKey"] = Keyboard.KEY_RIGHT_SHIFT,
-
 
 	 ---------- Save Game Options ------------
 
@@ -493,26 +330,6 @@ EID.UserConfig = {
 
 	---------- Misc ----------
 
-	-- Changes the number of results shown for the additional Spindown Dice description
-	-- REPENTANCE ONLY!!!
-	-- Default = 3
-	["SpindownDiceResults"] = 3,
-	-- Display IDs for Spindown Dice results
-	-- REPENTANCE ONLY!!!
-	-- Default = false
-	["SpindownDiceDisplayID"] = false,
-	-- Display names for Spindown Dice results
-	-- REPENTANCE ONLY!!!
-	-- Default = false
-	["SpindownDiceDisplayName"] = false,
-	-- Spindown Dice preview can skip over locked items, however the method for determining an item's locked status is not perfect
-	-- REPENTANCE ONLY!!!
-	-- Default = false
-	["SpindownDiceSkipLocked"] = false,
-	-- Show summary list for Glitched Crown, 5 item names are shown first, and press tap to cycle descriptions
-	-- REPENTANCE ONLY!!!
-	-- Default = true
-	["GlitchedCrownSummary"] = true,
 
 	-- Error message displayed when an error occurs
 	-- Default = [Effect not defined]
@@ -595,10 +412,6 @@ EID.DefaultConfig = {
 	["ModIndicatorDisplay"] = "None",
 	["ModIndicatorTextColor"] = "ColorLightOrange",
 	["ShowObjectID"] = false,
-	["TransformationText"] = true,
-	["TransformationIcons"] = true,
-	["TransformationProgress"] = true,
-	["TransformationColor"] = "ColorEIDTransform",
 	["DisplayCardInfo"] = true,
 	["DisplayCardInfoShop"] = false,
 	["DisplaySoulstoneInfoShop"] = true,
@@ -611,51 +424,20 @@ EID.DefaultConfig = {
 	["DisplayObstructedPillInfo"] = false,
 	["OnlyShowPillWhenUsedAtLeastOnce"] = false,
 	["ShowUnidentifiedPillDescriptions"] = false,
-	["DisplayGlitchedItemInfo"] = false,
-	["DisplaySacrificeInfo"] = true,
-	["DisplaySanguineInfo"] = true,
-	["PredictionSanguineBond"] = false,
 	["DisplayDiceInfo"] = true,
-	["DisplayBagOfCrafting"] = "always",
-	["DisplayCraneInfo"] = true,
-	["DisplayVoidStatInfo"] = false,
-	["DisplayFlipItemDescriptions"] = true,
-	["BagOfCraftingResults"] = 7,
-	["BagOfCraftingCombinationMax"] = 12,
-	["BagOfCraftingRandomResults"] = 400,
-	["BagOfCraftingSortOrder"] = "Quality",
-	["BagOfCraftingDisplayNames"] = false,
-	["BagOfCraftingDisplayIcons"] = false,
-	["BagOfCraftingHideInBattle"] = true,
-	["BagOfCraftingShowControls"] = true,
-	["BagOfCraftingDisplayRecipesMode"] = "Recipe List",
-	["CraftingHideKey"] = Keyboard.KEY_F3,
-	["CraftingHideButton"] = -1,
-	["CraftingResultKey"] = Keyboard.KEY_F4,
-	["CraftingResultButton"] = -1,
-	["CraftingSearchKey"] = Keyboard.KEY_RIGHT_SHIFT,
 
 	["ItemReminderEnabled"] = true,
 	["ItemReminderDisplayMode"] = "All",
 	["ItemReminderDisableInputs"] = false,
-	["BagOfCraftingToggleKey"] = ButtonAction.ACTION_MAP,
 	["ItemReminderNavigateLeftButton"] = ButtonAction.ACTION_SHOOTLEFT,
 	["ItemReminderNavigateRightButton"] = ButtonAction.ACTION_SHOOTRIGHT,
 	["ItemReminderNavigateUpButton"] = ButtonAction.ACTION_SHOOTUP,
 	["ItemReminderNavigateDownButton"] = ButtonAction.ACTION_SHOOTDOWN,
 	["ItemReminderOverviewHideAfterRows"] = 2,
 	["ItemReminderMaxEntriesCount"] = 5,
-	["ItemReminderShowHiddenInfo"] = false,
-	["ItemReminderShowRNGCheats"] = false,
 	
 	["DynamicHealthUps"] = true,
-	["DisplayTCainSalvageResults"] = true,
 	
-	["SpindownDiceResults"] = 3,
-	["SpindownDiceDisplayID"] = false,
-	["SpindownDiceDisplayName"] = false,
-	["SpindownDiceSkipLocked"] = false,
-	["GlitchedCrownSummary"] = true,
 	["SaveGameNumber"] = 0,
 	["HideUncollectedItemDescriptions"] = false,
 	["ItemCollectionIndicator"] = true,

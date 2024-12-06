@@ -114,12 +114,11 @@ local charsToDebug = {
 	"pickups: |{{Key}}|{{GoldenKey}}|{{Bomb}}|{{GoldenBomb}}|{{Coin}}|{{Card}}|{{RedCard}}|{{Collectible}}|{{Pill}}|{{Trinket}}|{{Battery}}|{{Rune}}|{{Slotmachine}}|",
 	"roomtypes: |{{DevilRoom}}|{{AngelRoom}}|{{ChallengeRoom}}|{{IsaacsRoom}}|{{TreasureRoom}}|{{ArcadeRoom}}|{{BossRushRoom}}|{{Shop}}|{{SuperSecretRoom}}|{{BarrenRoom}}|{{MiniBoss}}|{{DiceRoom}}|{{GreedTreasureRoom}}|{{SecretRoom}}|{{Library}}|{{ChestRoom}}|{{BossRoom}}|{{CursedRoom}}|{{SacrificeRoom}}|",
 	"roomshapes: |{{Room}}|{{RoomLongHorizontal}}|{{RoomLongThinHorizontal}}|{{RoomSmallHorizontal}}|{{RoomLBottomRight}}|{{RoomSmallVertical}}|{{RoomLBottomLeft}}|{{RoomLTopLeft}}|{{RoomL}}|{{RoomLongVertical}}|{{RoomXL}}|{{RoomLongThinVertical}}|",
-	"transformations: |{{CustomTransformation}}|{{Guppy}}|{{FunGuy}}|{{LordoftheFlies}}|{{Conjoined}}|{{Spun}}|{{Mom}}|{{OhCrap}}|{{Bob}}|{{Leviathan}}|{{Seraphim}}|{{SuperBum}}|{{Bookworm}}|{{SpiderBaby}}|{{Adult}}|{{Stompy}}|",
 	"Stats: |{{Damage}}|{{Speed}}|{{Tears}}|{{Range}}|{{Shotspeed}}|{{Luck}}|{{AngelChance}}|{{DevilChance}}|{{AngelDevilChance}}|{{PlanetariumChance}}|{{TreasureRoomChance}}|",
 	"AB+ Stats: |{{DamageAB}}|{{SpeedAB}}|{{TearsAB}}|{{RangeAB}}|{{ShotspeedAB}}|{{LuckAB}}|{{AngelChanceAB}}|{{DevilChanceAB}}|",
 	"Status effects: |{{Charm}}|{{Burning}}|{{Crown}}|{{Fear}}|{{Poison}}|{{Slow}}|{{Magnetize}}|{{BrimstoneCurse}}|{{BleedingOut}}|{{Weakness}}|{{Bait}}|{{DeathMark}}|",
 	"Curses, Misc: |{{CurseDarkness}}|{{CurseLabyrinth}}|{{CurseLost}}|{{CurseUnknown}}|{{CurseCursed}}|{{CurseMaze}}|{{CurseBlind}}|{{CurseGiant}}|{{HardMode}}|{{GreedMode}}|{{GreedierMode}}|{{DonationJam}}|{{AchievementLocked}}|{{VictoryLap}}|",
-	"Main Colors: {{ColorText}}Text {{ColorTransform}}Transform {{ColorError}}Error {{ColorObjName}}ObjName {{ColorBlack}}Black {{ColorWhite}}White {{ColorRed}}Red {{ColorLime}}Lime {{ColorBlue}}Blue",
+	"Main Colors: {{ColorText}}Text {{ColorError}}Error {{ColorObjName}}ObjName {{ColorBlack}}Black {{ColorWhite}}White {{ColorRed}}Red {{ColorLime}}Lime {{ColorBlue}}Blue",
 	"Colors: {{ColorYellow}}Yellow {{ColorCyan}}Cyan {{ColorPink}}Pink {{ColorSilver}}Silver {{ColorGray}}Gray {{ColorMaroon}}Maroon {{ColorOlive}}Olive {{ColorGreen}}Green {{ColorPurple}}Purple {{ColorTeal}}Teal {{ColorNavy}}Navy {{ColorOrange}}Orange ",
 	"special Colors: {{ColorFade}}Fade {{CR}}{{ColorBlink}}Blink {{ColorRainbow}}Rainbow {{ColorBlink}}BlinkWithColor {{ColorFade}}BlinkColorFade",
 	"End of line"
@@ -133,7 +132,6 @@ __eidItemDescriptions[1] = "\1 Overriden Legacy description"	-- 5.100.1 = Sad On
 __eidTrinketDescriptions[1] = "\2 Overriden Legacy description"	-- 5.350.1 = swallowed penny
 __eidCardDescriptions[1] = "Overriden Legacy description"		-- 5.300.1 = the fool
 __eidPillDescriptions[21] = "Overriden Legacy description"		-- Pill Effect 20 = Hematemesis
-__eidItemTransformations[1] = "Legacy Transformation"			-- add custom transformation Text to Sad Onion
 
 ------ Legacy add Description to entity ------
 __eidEntityDescriptions["5.10.1"] = {"Entity Name", "Entity description"} -- Adds description to full red hearts
@@ -152,22 +150,6 @@ EID:addTrinket(2, "New override Method") -- minimal method
 EID:addCard(2, "New override Method", "new Name") -- card
 EID:addPill(2, "New override Method", "new Name") -- pilleffect 2 "Balls of steel"
 EID:addEntity(5, 10, 2, "Custom Name", "New Custom description") -- Entity
-
------- Test: adding custom transformation icon ------
-local dummySprite = Sprite()
-dummySprite:Load("gfx/eid_inline_icons.anm2", true)
-EID:addIcon("NewTransform1", "hearts", 2, 9, 9, -1, 0, dummySprite)
--- the Transformation icon will try to get an icon with the same name as the transformation, but without any spaces. Default Icon otherwise
-EID:createTransformation("NewTransform1", "New transformation") -- Transformation
-EID:createTransformation("NewTransform1", "New russian transformation", "ru") -- add Transformation name in russian
-
-EID:assignTransformation("collectible", 5, "NewTransform1,2,3") -- Add Transformation to My Reflection
-EID:removeTransformation("collectible", 5, "2,3") -- Removes transformations
-EID:assignTransformation("collectible", 5, "2,3") -- add transformations again
-EID:removeTransformation("collectible", 5, "2,3") -- Removes transformations again
-
------- Test: Add all transformations + some customs ones to Inner Eye ------
-EID:assignTransformation("collectible", 2, "1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,something Custom,NewTransform1")
 
 ------ Test: adding custom icons ------
 local dummySprite2 = Sprite()
@@ -224,7 +206,6 @@ local function onDebugRender()
 			local descTable = {
 				["Name"] = "Some Item with seed ".. v.InitSeed ,
 				["Description"] = "Test specific description#Init seed: ".. v.InitSeed,
-				["Transformation"] = "1,2",
 				["ModName"] = "My Mod name",
 				["Quality"] = 4,
 				["Icon"] = EID.ObjectIcon["5.100.1"],
