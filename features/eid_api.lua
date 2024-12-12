@@ -235,7 +235,6 @@ function EID:getIDVariantString(typeName)
 	elseif typeName == "trinket" or typeName == "trinkets" then return "5.350"
 	elseif typeName == "card" or typeName == "cards" then return "5.300"
 	elseif typeName == "pill" or typeName == "pills" or typeName == "horsepills" or typeName == "horsepill" then return "5.70"
-	elseif typeName == "sacrifice" then return "-999.-1"
 	elseif typeName == "dice" then return "1000.76"
 	end
 	return nil
@@ -253,7 +252,6 @@ function EID:getTableName(Type, Variant, SubType)
 		else
 			return "horsepills"
 		end
-	elseif idString == "-999.-1" then return "sacrifice"
 	elseif idString == "1000.76" then return "dice"
 	elseif idString == "1.0" then return "players"
 	else return "custom"
@@ -474,8 +472,6 @@ function EID:getAdjustedSubtype(Type, Variant, SubType)
 		if EID.isRepentance then
 			return (SubType & TrinketType.TRINKET_ID_MASK)
 		end
-	elseif tableName == "sacrifice" then
-		return math.min(#EID.descriptions["en_us"].sacrifice, SubType)
 	elseif tableName == "pills" or tableName == "horsepills" then
 		-- The effect of a pill varies depending on what player is looking at it in co-op
 		-- EID.pillPlayer is a way to recheck a pill for what different players will turn it into
@@ -518,8 +514,6 @@ function EID:getObjectName(Type, Variant, SubType)
 	elseif tableName == "pills" or tableName == "horsepills" then
 		local adjustedSubtype = EID:getAdjustedSubtype(Type, Variant, SubType)
 		return EID:getPillName(adjustedSubtype, tableName == "horsepills")
-	elseif tableName == "sacrifice" then
-		return EID:getDescriptionEntry("sacrificeHeader").." ("..SubType.."/"..#EID.descriptions["en_us"].sacrifice..")"
 	elseif tableName == "dice" then
 		return EID:getDescriptionEntry("diceHeader").." ("..SubType..")"
 	elseif tableName == "players" then
@@ -759,23 +753,26 @@ end
 -- Returns 2 values. the string without the placeholders but with an accurate space between lines. and a table of all Inline Sprites
 function EID:filterIconMarkup(text, renderBulletPointIcon)
 	local spriteTable = {}
-	for word in string.gmatch(text, "{{.-}}") do
+	for word in string.gmatch(text, "{{[^{]-}}") do
 		local textposition = string.find(text, word) or 1
 
 		local callback = EID._NextIconModifier
 		EID._NextIconModifier = nil
 
 		local lookup = EID:getIcon(word)
-		local preceedingTextWidth = EID:getStrWidth(string.sub(text, 0, textposition - 1)) * EID.Scale
 
-		-- Center the small bullet point icons by adding an extra left offset to them.
-		-- If the icon has a positive left offset, that means the offset is already included in the icon itself and we should not add it again
-		if renderBulletPointIcon and lookup[3] < 11 and (#lookup < 5 or lookup[5] <= 0)  then
-			preceedingTextWidth  = preceedingTextWidth + math.floor((12 - lookup[3]) / 2) * EID.Scale
+		if not EID.isEditing or lookup ~= EID.InlineIcons["ERROR"] then
+			local preceedingTextWidth = EID:getStrWidth(string.sub(text, 0, textposition - 1)) * EID.Scale
+	
+			-- Center the small bullet point icons by adding an extra left offset to them.
+			-- If the icon has a positive left offset, that means the offset is already included in the icon itself and we should not add it again
+			if renderBulletPointIcon and lookup[3] < 11 and (#lookup < 5 or lookup[5] <= 0)  then
+				preceedingTextWidth  = preceedingTextWidth + math.floor((12 - lookup[3]) / 2) * EID.Scale
+			end
+	
+			table.insert(spriteTable, {lookup, preceedingTextWidth, callback})
+			text = string.gsub(text, word, EID:generatePlaceholderString(lookup[3]), 1)
 		end
-
-		table.insert(spriteTable, {lookup, preceedingTextWidth, callback})
-		text = string.gsub(text, word, EID:generatePlaceholderString(lookup[3]), 1)
 	end
 	return text, spriteTable
 end
@@ -817,12 +814,15 @@ end
 -- Returns the icon used for the bulletpoint. It will look at the first word in the given string.
 -- Also returns the first word if it was rejected (so it can be removed from the line)
 function EID:handleBulletpointIcon(text)
+	if string.match(text, "([^%s]+)") == nil then return "\007" end -- handle empty bullet points
+
 	local firstWord = EID:removeColorMarkup(string.match(text, "([^%s]+)"))
-	if EID:getIcon(firstWord) ~= EID.InlineIcons["ERROR"] and string.find(firstWord, "{{.-}}")~=nil then
-		if not EID.Config["StatAndPickupBulletpoints"] and EID.StatPickupBulletpointBlacklist[firstWord] then
+	local icon = string.match(firstWord, "({{[^{]-}})")
+	if icon ~= nil and EID:getIcon(icon) ~= EID.InlineIcons["ERROR"] then
+		if not EID.Config["StatAndPickupBulletpoints"] and EID.StatPickupBulletpointBlacklist[icon] then
 			return "\007", firstWord
 		end
-		return firstWord
+		return icon
 	end
 	return "\007"
 end
@@ -862,7 +862,7 @@ function EID:filterColorMarkup(text, baseKColor)
 	local lastColor = baseKColor
 	local lastFunc = colorFunc
 	local lastPosition = 0
-	for word in string.gmatch(text, "{{.-}}") do
+	for word in string.gmatch(text, "{{[^{]-}}") do
 		local textposition = string.find(text, word)
 		local lookup, isColor = EID:getColor(word, lastColor)
 		if isColor then
@@ -893,14 +893,14 @@ function EID:replaceAllMarkupWithSpaces(text, checkBulletpoint)
 	if checkBulletpoint then
 		-- Check for the text to just be a bulletpoint icon, which should be considered as zero width
 		-- (fixTextToWidth uses this function one word at a time)
-		if EID:getIcon(text:gsub(" ", "")) ~= EID.InlineIcons["ERROR"] and string.find(text, "{{.-}}")~=nil then
+		if EID:getIcon(text:gsub(" ", "")) ~= EID.InlineIcons["ERROR"] and string.find(text, "{{[^{]-}}")~=nil then
 			return ""
 		end
 	end
 	-- iconsFound is used to make the next space after a markup icon be immune to line breaks, but only if it's just one icon with no other text
-	local iconsFound = 0; if text:gsub(" ", ""):gsub("{{.-}}","") ~= "" then iconsFound = -999 end
+	local iconsFound = 0; if text:gsub(" ", ""):gsub("{{[^{]-}}","") ~= "" then iconsFound = -999 end
 	
-	for word in string.gmatch(text, "{{.-}}") do
+	for word in string.gmatch(text, "{{[^{]-}}") do
 		local lookup = EID:getIcon(word)
 		if lookup[1] ~= "ERROR" then
 			text = string.gsub(text, word, EID:generatePlaceholderString(lookup[3]), 1)
@@ -1961,45 +1961,6 @@ function EID:SetOldestItemIndex()
 		if EID.OldestItemIndex[i] == nil then EID.OldestItemIndex[i] = #EID.RecentlyTouchedItems[i] + 1 end
 		-- set up Dead Tainted Lazarus to be oldest slot 1
 		if EID.OldestItemIndex[i+666] == nil then EID.OldestItemIndex[i+666] = 1 end
-	end
-end
-
-EID.GulpedTrinkets = {}
--- Check for gulped trinkets that have been removed (e.g. perfection, walnut)
-function EID:UpdateAllPlayerTrinkets()
-	for i = 1, #EID.coopAllPlayers do
-		local player = EID.coopAllPlayers[i]
-		if player == nil then return end
-		
-		local playerNum = EID:getPlayerID(player, true)
-		if EID.GulpedTrinkets[playerNum] == nil then return end
-		
-		-- remove items the player no longer has. reverse iteration to make deletion easier
-		for index = #EID.GulpedTrinkets[playerNum], 1, -1  do
-			if not player:HasTrinket(EID.GulpedTrinkets[playerNum][index]) then
-				table.remove(EID.GulpedTrinkets[playerNum], index)
-			end
-		end
-	end
-end
-
-EID.WispsPerPlayer = {}
--- This is automatically called shortly after main.lua sees a Lemegeton get used, and when the Item Reminder is opened
-function EID:UpdateAllPlayerLemegetonWisps()
-	EID.WispsPerPlayer = {}
-	
-	for _, wisp in ipairs(Isaac.FindByType(3, 237, -1, true, false)) do
-		local wispPlayer = wisp:ToFamiliar() and wisp:ToFamiliar().Player
-		if wispPlayer then
-			local playerNum = EID:getPlayerID(wispPlayer, true)
-			EID.WispsPerPlayer[playerNum] = EID.WispsPerPlayer[playerNum] or {}
-			table.insert(EID.WispsPerPlayer[playerNum], wisp)
-		end
-	end
-	-- Sort wisps by age (newest first), and leave just the IDs
-	for playerNum,wisps in pairs(EID.WispsPerPlayer) do
-		table.sort(wisps, function(a, b) return a.FrameCount < b.FrameCount end)
-		for i,v in ipairs(wisps) do wisps[i] = v.SubType end
 	end
 end
 

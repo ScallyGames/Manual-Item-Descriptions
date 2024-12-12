@@ -44,11 +44,15 @@ EID.UserConfig = {
 	-- Options: ["arrow", "blink", "border", "highlight", "none"].
 	-- Arrow = Moving arrow pointing at the item | Blink = The whole sprite blinks white | Border = Blinking white border around the sprite | Highlight = White border around the sprite |  None = No indicator
 	-- Default = "none"
-	["Indicator"] = "none",
+	["Indicator"] = "arrow",
 	-- Set the keybind to toggle the description display
 	-- Look into the AB+ or Repentance documentation for the key names here: https://wofsauge.github.io/IsaacDocs/rep/enums/Keyboard.html
 	-- Default = Keyboard.KEY_F2
 	["HideKey"] = Keyboard.KEY_F2,
+	-- Set the keybind to edit the description of the currently selected item
+	-- Look into the AB+ or Repentance documentation for the key names here: https://wofsauge.github.io/IsaacDocs/rep/enums/Keyboard.html
+	-- Default = Keyboard.KEY_F3
+	["EditKey"] = Keyboard.KEY_F3,
 	-- Set the controller binding to toggle the description display
 	-- Use the controller names here: https://github.com/wofsauge/External-Item-Descriptions/blob/master/mod_config_menu.lua#L1 or a number
 	-- Controller.STICK_LEFT and Controller.STICK_RIGHT (pushing the sticks in), which aren't used in-game with default controls
@@ -59,7 +63,7 @@ EID.UserConfig = {
 	["InitiallyHidden"] = false,
 	-- Hide the descriptions when in battle
 	-- Default = false
-	["HideInBattle"] = false,
+	["HideInBattle"] = true,
 	-- How many times a second that EID checks for what objects are close to the player
 	-- Lowering this number can help if you experience frame drops while descriptions are on-screen
 	-- Please use a factor of 60! (1, 2, 3, 4, 5, 6, 10, 12, 15, 20, 30, 60)
@@ -164,24 +168,6 @@ EID.UserConfig = {
 	-- Color names are defined in "eid_data.lua" (line 300)
 	-- Default = "ColorEIDObjName"
 	["ItemNameColor"] = "ColorEIDObjName",
-	-- Display the ID of described object in the format "Type.Variant.SubType" next to the name
-	-- Default = false
-	["ShowObjectID"] = false,
-	-- Enables or disables item quality icon after item name
-	-- REPENTANCE ONLY!!!
-	-- Default = true
-	["ShowQuality"] = true,
-	-- Enables or disables collectible's item pool when collected after item name
-	-- REPENTANCE ONLY!!!
-	-- Default = false
-	["ShowItemPoolIcon"] = false,
-	-- Enables or disables collectible's item pool name when collected below item name
-	-- REPENTANCE ONLY!!!
-	-- Default = false
-	["ShowItemPoolText"] = false,
-	-- Set the item pool for collectible text color
-	-- Default = "ColorSilver"
-	["ItemPoolTextColor"] = "ColorSilver",
 	-- Set the mod indicator display
 	-- Default = "Both"
 	["ModIndicatorDisplay"] = "None",
@@ -254,6 +240,10 @@ EID.UserConfig = {
 	-- Disable inputs while Item Reminder is visible
 	-- Default = false
 	["ItemReminderDisableInputs"] = false,
+	-- Set the keybinding that's held to show the Item Reminder description
+	-- Look into the AB+ or Repentance documentation for the key names here: https://wofsauge.github.io/IsaacDocs/rep/enums/ButtonAction.html
+	-- Default = ButtonAction.ACTION_MAP
+	["EIDToggleKey"] = ButtonAction.ACTION_MAP,
 	-- Set the keybinding that is used to scroll thru the categories in the left direction
 	-- Look into the AB+ or Repentance documentation for the key names here: https://wofsauge.github.io/IsaacDocs/rep/enums/ButtonAction.html
 	-- Default = ButtonAction.ACTION_SHOOTLEFT
@@ -276,13 +266,7 @@ EID.UserConfig = {
 	-- Number of entries to display per category of the item description.
 	-- Default = 3
 	["ItemReminderMaxEntriesCount"] = 3,
-	
-	---------- Dynamic Descriptions ------------
-	-- Some descriptions can be completely different depending on what character you are, here you can disable the most extreme ones
-	
-	-- Changes Health Ups and removes healing effect text when playing as a character that can't have red health
-	-- Default = true
-	["DynamicHealthUps"] = true,
+
 
 	 ---------- Save Game Options ------------
 
@@ -383,11 +367,12 @@ EID.DefaultConfig = {
 	["StatChangeIcons"] = false,
 	["StatAndPickupBulletpoints"] = true,
 	["MaxDistance"] = 5,
-	["Indicator"] = "none",
+	["Indicator"] = "arrow",
 	["HideKey"] = Keyboard.KEY_F2,
+	["EditKey"] = Keyboard.KEY_F3,
 	["HideButton"] = -1,
 	["InitiallyHidden"] = false,
-	["HideInBattle"] = false,
+	["HideInBattle"] = true,
 	["RefreshRate"] = 30,
 	["DisableObstructionOnFlight"] = true,
 	["DisableStartOfRunWarnings"] = false,
@@ -405,10 +390,6 @@ EID.DefaultConfig = {
 	["DisplayItemInfo"] = true,
 	["DisplayTrinketInfo"] = true,
 	["ItemNameColor"] = "ColorEIDObjName",
-	["ShowQuality"] = true,
-	["ShowItemPoolIcon"] = false,
-	["ShowItemPoolText"] = false,
-	["ItemPoolTextColor"] = "ColorSilver",
 	["ModIndicatorDisplay"] = "None",
 	["ModIndicatorTextColor"] = "ColorLightOrange",
 	["ShowObjectID"] = false,
@@ -429,14 +410,13 @@ EID.DefaultConfig = {
 	["ItemReminderEnabled"] = true,
 	["ItemReminderDisplayMode"] = "All",
 	["ItemReminderDisableInputs"] = false,
+	["EIDToggleKey"] = ButtonAction.ACTION_MAP,
 	["ItemReminderNavigateLeftButton"] = ButtonAction.ACTION_SHOOTLEFT,
 	["ItemReminderNavigateRightButton"] = ButtonAction.ACTION_SHOOTRIGHT,
 	["ItemReminderNavigateUpButton"] = ButtonAction.ACTION_SHOOTUP,
 	["ItemReminderNavigateDownButton"] = ButtonAction.ACTION_SHOOTDOWN,
 	["ItemReminderOverviewHideAfterRows"] = 2,
 	["ItemReminderMaxEntriesCount"] = 5,
-	
-	["DynamicHealthUps"] = true,
 	
 	["SaveGameNumber"] = 0,
 	["HideUncollectedItemDescriptions"] = false,

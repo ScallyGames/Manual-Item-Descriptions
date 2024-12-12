@@ -256,7 +256,7 @@ if MCMLoaded then
 	---------------------------------------------------------------------------
 	-----------------------------------Info------------------------------------
 	MCM.AddSpace("EID", "Info")
-	MCM.AddText("EID", "Info", function() return "External Item Descriptions" end)
+	MCM.AddText("EID", "Info", function() return "Manual Item Descriptions" end)
 	MCM.AddSpace("EID", "Info")
 	MCM.AddText("EID", "Info", function() return "Version "..EID.ModVersion .."_"..EID.ModVersionCommit.." ("..EID.GameVersion..")" end)
 	MCM.AddSpace("EID", "Info")
@@ -331,6 +331,11 @@ if MCMLoaded then
 	EID:AddHotkeySetting("General", "HideButton", "Toggle (Controller)",
 		"Press this button to toggle the description display (Left Stick or Right Stick recommended; most other buttons will not work).", true)
 
+	-- Edit Key
+	EID:AddHotkeySetting("General", "EditKey", "Edit (Keyboard)",
+		"Press this key to toggle editing of the currently focussed description.", false)
+
+
 	MCM.AddSpace("EID", "General")
 	MCM.AddText("EID", "General", "Advanced")
 
@@ -402,10 +407,6 @@ if MCMLoaded then
 	MCM.AddSpace("EID", "Display")
 	MCM.AddText("EID", "Display", "Items and Machines")
 
-	EID:AddBooleanSetting("Display", "DisplayCraneInfo", "Show Crane Game Info", {repOnly = true, infoText = "Displays the description of items in Crane Games."})
-	EID:AddBooleanSetting("Display", "DisplayVoidStatInfo", "Show Void Stat Increases", {infoText = "Displays the stats that would be gained by consuming a passive item."})
-	EID:AddBooleanSetting("Display", "DisplayGlitchedItemInfo", "Show Glitched Item Info", {repOnly = true,
-	infoText = "Note: Installing REPENTOGON is required for more detailed glitched item descriptions!"})
 
 	MCM.AddSpace("EID", "Display")
 	MCM.AddText("EID", "Display", "Hidden items")
@@ -426,10 +427,6 @@ if MCMLoaded then
 
 	MCM.AddSpace("EID", "Display")
 	MCM.AddText("EID", "Display", "Dynamic Descriptions")
-	
-	EID:AddBooleanSetting("Display", "DynamicHealthUps", "Dynamic Health Up Text",
-	{infoText = "Changes Health Ups and removes healing effect text when playing as a character that can't have red health"})
-
 	
 	--------Obstruction---------
 	MCM.AddSpace("EID", "Display")
@@ -559,9 +556,6 @@ if MCMLoaded then
 	EID:AddBooleanSetting("Visuals", "ShowItemType", "Display Type")
 	EID:AddBooleanSetting("Visuals", "ShowItemIcon", "Display Icon")
 	EID:AddBooleanSetting("Visuals", "ShowItemDescription", "Display Description")
-	EID:AddBooleanSetting("Visuals", "ShowQuality", "Display Quality", {repOnly = true})
-	EID:AddBooleanSetting("Visuals", "ShowItemPoolIcon", "Display Item Pool Icon", {repOnly = true, infoText = "Displays the icon of the expected item pool for full rerolls."})
-	EID:AddBooleanSetting("Visuals", "ShowItemPoolText", "Display Item Pool Name", {repOnly = true, infoText = "Displays the name of the expected item pool for full rerolls."})
 	EID:AddBooleanSetting("Visuals", "ShowObjectID", "Display ID")
 
 	-------Mod indicator for modded items---------
@@ -578,6 +572,9 @@ if MCMLoaded then
 	MCM.AddSpace("EID", "Reminder")
 	MCM.AddText("EID", "Reminder", "Controls")
 	local actionToName = { [0] = "Move Left", "Move Right", "Move Up", "Move Down", "Shoot Left", "Shoot Right", "Shoot Up", "Shoot Down", "Bomb", "Item", "Pill/Card", "Drop", "Pause", "Map" }
+
+	EID:AddNumberSetting("Reminder", "EIDToggleKey", "Hold to Show", 8, 13, {displayTable = actionToName,
+	infoText = {"Hold this key to display the Item Reminder."}})
 
 	EID:AddNumberSetting("Reminder", "ItemReminderNavigateLeftButton", "Navigate Left", 0, 13, {displayTable = actionToName,
 	infoText = {"Press this key to scroll left through the categories."}})
@@ -887,32 +884,7 @@ if MCMLoaded then
 		}
 	)
 	-- Last Pool indicator Color (REPENTANCE ONLY)
-	if EID.isRepentance then
-		MCM.AddSetting(
-			"EID",
-			"Colors",
-			{
-				Type = ModConfigMenu.OptionType.NUMBER,
-				CurrentSetting = function()
-					return AnIndexOf(colorNameArray, EID.Config["ItemPoolTextColor"])
-				end,
-				Minimum = 0,
-				Maximum = 1000,
-				Display = function()
-					if EID.Config["ItemPoolTextColor"] == nil then EID.Config["ItemPoolTextColor"] = EID.DefaultConfig["ItemPoolTextColor"] end
-					return "Item Pool Name Color: " .. string.gsub(EID.Config["ItemPoolTextColor"], "Color", "").. " ("..AnIndexOf(colorNameArray, EID.Config["ItemPoolTextColor"]).."/"..#colorNameArray..")"
-				end,
-				OnChange = function(currentNum)
-					EID.MCM_OptionChanged = true
-					if currentNum == 0 then currentNum = #colorNameArray end
-					if currentNum > #colorNameArray then currentNum = 1 end
-					EID.Config["ItemPoolTextColor"] = colorNameArray[currentNum]
-				end,
-				Info = {"Changes the color of the last item pool indicator text (if enabled)."}
-			}
-		)
-	end
-
+	
 	MCM.AddSpace("EID", "Colors")
 	-- Color blind
 	local colorBlindModes = {[0] = "Off", "Protanopia (red weak)", "Deuteranopia (green weak)", "Tritanopia (blue weak)"}

@@ -36,14 +36,6 @@ EID.ItemReminderCategories = {
 		end
 	},
 	{ id = "Special", entryGenerators = { function(player) EID:ItemReminderHandlePoopSpells(player) end, } },
-	{ id = "Wisps",
-		isScrollable = true,
-		entryGenerators = { function(player) EID:ItemReminderHandleLemegetonWisps(player) end, },
-		scrollbarGenerator = function(player)
-			local playerNum = EID:getPlayerID(player, true)
-			return EID:ItemReminderHandleItemScrollbarFeature(EID.WispsPerPlayer[playerNum], 100, false)
-		end
-	},
 	{ id = "Actives", entryGenerators = { function(player) EID:ItemReminderHandleActiveItems(player) end, } },
 	{ id = "Pockets",
 		entryGenerators = {
@@ -221,13 +213,6 @@ EID.ItemReminderDescriptionModifier = {
 					return true
 				end
 			end
-		end
-	},
-	["5.100.489"] = { -- D Infinity
-		modifierFunction = function(descObj, player)
-			local predictionItem = EID:CurrentDInfinity(EID:GetItemSeed(player, 489), player)
-			descObj = EID:ItemReminderReplaceWithResult(descObj, predictionItem)
-			return true
 		end
 	},
 	---------------- CARDS ----------------
@@ -436,9 +421,7 @@ end
 
 -- Held trinkets are added at the end of the table; use this table in descending order
 function EID:ItemReminderHeldPlusGulped(player)
-	local playerNum = EID:getPlayerID(player, true)
 	local newTable = {}
-	if EID.GulpedTrinkets[playerNum] then newTable = {table.unpack(EID.GulpedTrinkets[playerNum])} end
 	for i=0, 1 do
 		local trinket = player:GetTrinket(i)
 		if trinket > 0 then table.insert(newTable, trinket) end
@@ -502,12 +485,6 @@ function EID:ItemReminderHandlePoopSpells(player)
 			end
 		end
 	end
-end
-
--- Lemegeton wisp descriptions
-function EID:ItemReminderHandleLemegetonWisps(player)
-	local playerNum = EID:getPlayerID(player, true)
-	EID:ItemReminderHandleItemPrinting(player, EID.WispsPerPlayer[playerNum], 100, false)
 end
 
 -- Handle scroll inputs
@@ -583,9 +560,7 @@ function EID:ItemReminderHandleInitHoldTab()
 			break
 		end
 	end
-	
-	EID:UpdateAllPlayerLemegetonWisps()
-	EID:UpdateAllPlayerTrinkets()
+
 	local updatedPlayers = EID:UpdateAllPlayerPassiveItems()
 	if updatedPlayers[EID.ItemReminderSelectedPlayer + 1] or oldDisplayPlayer ~= EID.ItemReminderSelectedPlayer then
 		EID:ResetItemReminderSelectedItems("Passives")

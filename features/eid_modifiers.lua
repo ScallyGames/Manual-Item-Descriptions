@@ -66,73 +66,6 @@ local function TabCallback(descObj)
 	return descEntry
 end
 
--- Handle Void
-local voidStatUps = { 0.2, 0.5, 1, 0.5, 0.2, 1 }
-local voidStatIcons = {"{{Speed}}", "{{Tears}}", "{{Damage}}", "{{Range}}", "{{Shotspeed}}", "{{Luck}}"}
-if EID.isRepentance then voidStatUps[4] = 2.5 end
-local lastVoidCheck = -30
-EID.VoidStatIncreases = {{},{},{}}
-EID.BlackRuneStatIncreases = {{},{},{}}
-EID.VoidOptionIndexes = {}
-
-local function VoidCallback(descObj, isRune)
-	if EID.InsideItemReminder then return descObj end
-	-- Recheck RNG periodically (picking up passive collectibles will change the Void results without any easy trigger to track)
-	-- Do both Void and Rune here since they could both be requested in the same frame
-	if EID.GameUpdateCount >= lastVoidCheck + 30 or EID.RecheckVoid then
-		EID:VoidRoomCheck()
-		if EID.collectiblesOwned[477] then EID:VoidRNGCheck(Isaac.GetPlayer(EID.collectiblesOwned[477]), false) end
-		if EID.collectiblesOwned["5.300.41"] then EID:VoidRNGCheck(Isaac.GetPlayer(EID.collectiblesOwned["5.300.41"]), true) end
-		lastVoidCheck = EID.GameUpdateCount
-		EID.RecheckVoid = false
-	end
-
-	local prefix = (isRune and "{{Card41}} ") or "{{Collectible477}} "
-	local pickup = descObj.Entity and descObj.Entity:ToPickup()
-	local isAltOption = false
-	local shopItem = pickup and pickup:IsShopItem()
-	-- Test if this is an Option pedestal, Repentance only absorbs the lowest index one
-	-- (Don't check for options if it's a shop item, e.g. Tainted Keeper choice pedestals)
-	if EID.isRepentance and not shopItem then
-		local optionIndex = pickup and pickup.OptionsPickupIndex
-		local firstOption = EID.VoidOptionIndexes[optionIndex]
-		if (optionIndex and optionIndex ~= 0 and firstOption and descObj.ObjSubType ~= firstOption) then
-			EID:appendToDescription(descObj, "#" .. prefix .. "{{NameC"..firstOption.."}}" .. EID:getDescriptionEntry("VoidOptionText"))
-			isAltOption = true
-		end
-	end
-	-- Print Stat up info if Black Rune or non-active item
-	if isRune or EID.itemConfig:GetCollectible(descObj.ObjSubType).Type ~= 3 then
-		-- Afterbirth+ really can't do anything with Void and a shop item, so just return
-		if (not EID.isRepentance and shopItem) then return descObj end
-
-		local voidIntro = ((shopItem or isAltOption) and EID:getDescriptionEntry("VoidShopText")) or EID:getDescriptionEntry("VoidText")
-		local voidNames = EID:getDescriptionEntry("VoidNames")
-
-		local eidTable = (isRune and EID.BlackRuneStatIncreases) or EID.VoidStatIncreases
-		local increases = ((isAltOption or not descObj.Entity) and eidTable[3]) or (shopItem and eidTable[2]) or eidTable[1]
-
-		EID:appendToDescription(descObj, "#" .. prefix .. voidIntro .. "#")
-		for i,v in ipairs(increases) do
-			if v > 0 then
-				local statIncreaseStr = "↑ " .. voidStatIcons[i] .. " " .. voidNames[i] .. "#"
-				local replaceCount = 0
-				statIncreaseStr, replaceCount = EID:ReplaceVariableStr(statIncreaseStr, 1, "+" .. string.format("%.4g",v*voidStatUps[i]))
-				if replaceCount == 0 then statIncreaseStr = "↑ " .. voidStatIcons[i] .. " +" .. string.format("%.4g",v*voidStatUps[i]) .. " " .. voidNames[i] .. "#" end
-				EID:appendToDescription(descObj, statIncreaseStr)
-			end
-		end
-	-- Print unique synergies with Void and Active Items
-	elseif not isRune then
-
-	end
-	return descObj
-end
-
-local function BlackRuneCallback(descObj)
-	return VoidCallback(descObj, true)
-end
-
 -- Map each text block of Pandora's Box to the AbsoluteStage number. Second entry is the block used for Alt-Stages
 local pandoraStages = {
 	[1] = { 1, 1 }, -- B1
@@ -211,75 +144,6 @@ local function ItemCollectionPageCallback(descObj)
 	return descObj
 end
 
-
--- Handle Black Feather dynamic damage up text
-local function BlackFeatherCallback(descObj)
-	for i = 1,#EID.coopAllPlayers do
-		local player = EID.coopAllPlayers[i]
-		local playerType = player:GetPlayerType()
-		
-		local itemCounter = 0
-		for itemID, _ in pairs(EID.blackFeatherItems) do
-			itemCounter = itemCounter + player:GetCollectibleNum(itemID)
-		end
-		for trinketID, _ in pairs(EID.blackFeatherTrinkets) do
-			if EID.isRepentance then
-				itemCounter = itemCounter + player:GetTrinketMultiplier(trinketID)
-			else
-				if player:HasTrinket(trinketID) then itemCounter = itemCounter + 1 end
-			end
-		end
-		
-		local hasBox = player:HasCollectible(439)
-		local isGolden = EID.isRepentance and ((descObj.ObjSubType & TrinketType.TRINKET_GOLDEN_FLAG) == TrinketType.TRINKET_GOLDEN_FLAG)
-		local base = EID.isRepentance and 0.5 or 0.2
-		local damageMultiplied = base * itemCounter * (hasBox and 2 or 1) * (isGolden and 2 or 1)
-		local dmgColor = itemCounter == 0 and "CR" or (hasBox or isGolden) and "ColorGold" or "BlinkGray"
-
-		local description = EID:getDescriptionEntry("BlackFeatherInformation")
-		description, _ = EID:ReplaceVariableStr(description, 1, tostring(itemCounter))
-		description, _ =  EID:ReplaceVariableStr(description, 2, "{{"..dmgColor.."}}"..damageMultiplied.."{{CR}}")
-		if #EID.coopAllPlayers > 1 then description =  EID:GetPlayerIcon(playerType, "P" .. i .. ":") .. " " .. description end
-		
-		EID:appendToDescription(descObj, "#"..description)
-	end
-	return descObj
-end
-
--- Handle VURP description addition
-local function VurpCallback(descObj)
-	local adjustedID = EID:getAdjustedSubtype(descObj.ObjType, descObj.ObjVariant, descObj.ObjSubType)
-	if adjustedID - 1 ~= PillEffect.PILLEFFECT_VURP then return descObj end
-
-	for i = 1,#EID.coopAllPlayers do
-		local player = EID.coopAllPlayers[i]
-		local playerID = EID:getPlayerID(player, true)
-		local playerType = player:GetPlayerType()
-		local pickupHistory = EID.PlayerItemInteractions[playerID].pickupHistory
-		if pickupHistory then
-			local lastUsedPill = PillEffect.PILLEFFECT_VURP + 1
-			local lastUsedPillColor = 1
-			local j = 1
-			while (j <= #pickupHistory) do
-				local entry = pickupHistory[j]
-				-- ignore the pill if the pill color is Golden
-				if entry[1] == "pill" and entry[2] % 2048 ~= 14 then
-					lastUsedPill = entry[3]
-					lastUsedPillColor = entry[2]
-					break
-				end
-				j = j + 1
-			end
-			local tableName = EID:getTableName(descObj.ObjType, descObj.ObjVariant, descObj.ObjSubType)
-			local name = EID:getPillName(lastUsedPill, tableName == "horsepills")
-			if #EID.coopAllPlayers == 1 then EID:appendToDescription(descObj, "#{{Pill" .. lastUsedPillColor .. "}}")
-			else EID:appendToDescription(descObj, "#" .. EID:GetPlayerIcon(playerType, "P" .. i .. ":")) end
-			EID:appendToDescription(descObj, " {{ColorPill}}" .. name)
-		end
-	end
-	return descObj
-end
-
 -- Handle dynamic Luck chance modifiers
 local function LuckChanceCallback(descObj)
 	for i = 1,#EID.coopAllPlayers do
@@ -297,69 +161,6 @@ local function LuckChanceCallback(descObj)
 			EID:appendToDescription(descObj, "{{NoLB}}" .. luckLine)
 		end
 	end
-	return descObj
-end
-
--- Handle changing health up text for non-red HP players
-local function HealthUpCallback(descObj)
-	if not EID.Config["DynamicHealthUps"] then return descObj end
-	local adjustedSubtype = EID:getAdjustedSubtype(descObj.ObjType, descObj.ObjVariant, descObj.ObjSubType)
-	if descObj.ObjVariant == 70 and descObj.ObjSubType > 2048 then adjustedSubtype = adjustedSubtype + 2048 end -- horsepill exception
-	local typeVarSub = descObj.ObjType.."."..descObj.ObjVariant.."."..adjustedSubtype
-	
-	local closestPlayer = EID:ClosestPlayerTo(descObj.Entity)
-	local playerType = closestPlayer:GetPlayerType()
-	local heartType = EID.CharacterToHeartType[playerType] or "Red"
-	if heartType ~= "Red" then
-		-- find/replace Health Up lines
-		local numHearts = EID.HealthUpData[typeVarSub] or 1
-		local text = EID:getDescriptionEntry("RedToX", "Red to " .. heartType)
-		local plural = ""; if numHearts ~= 1 and numHearts ~= -1 then plural = EID:getDescriptionEntry("Pluralize") end
-		
-		local pos = 1
-		while pos <= #text do
-			-- replace {1} with the number of hearts and {2} with the plural character
-			local toFind = EID:ReplaceVariableStr(text[pos], {numHearts, plural})
-			if text[pos + 1] then
-				local replaceWith = EID:ReplaceVariableStr(text[pos + 1], {numHearts, plural})
-				descObj.Description = EID:SimpleReplace(descObj.Description, tostring(toFind), replaceWith, 1)
-			end
-			pos = pos + 2
-		end
-		
-		-- remove HealingRed lines entirely for Soul/Black/None health chars
-		descObj.Description = descObj.Description .. "#" -- gsub finds final lines better if the desc ends with a line break
-		if EID.HealthTypesWithoutHealing[heartType] then
-			-- Find any lines containing {{HealingRed}} or {{HealingHalfRed}} and remove the line
-			descObj.Description = descObj.Description:gsub("{{HealingRed}}(.-)#", "")
-			descObj.Description = descObj.Description:gsub("{{HealingHalfRed}}(.-)#", "")
-		end
-		
-		-- check if we just made the description blank
-		if descObj.Description:gsub("#", "") == "" then
-			local noEffectStr = EID:getDescriptionEntry("ConditionalDescs", "No Effect")
-			descObj.Description = EID:GetPlayerIcon(playerType) .. " " .. EID:ReplaceVariableStr(noEffectStr, EID:getPlayerName(playerType))
-		end
-	end
-	
-	-- test the other players for if they have a different effect
-	-- todo: this simple check could have false positives (i.e. Yum Heart is identical for Soul and Black, but this thinks they'll be different)
-	for i = 1, #EID.coopAllPlayers do
-		local t = EID.coopAllPlayers[i]:GetPlayerType()
-		local playerHeartType = EID.CharacterToHeartType[t] or "Red"
-		if playerHeartType ~= heartType then
-			table.insert(EID.DifferentEffectPlayers, t)
-		end
-	end
-	
-	return descObj
-end
-
--- Handle Single use Item description add-on
-local function SingleUseCallback(descObj)
-	local infoText = EID:getDescriptionEntry("SingleUseInfo")
-	descObj.Description = infoText .. "#" .. descObj.Description
-
 	return descObj
 end
 
@@ -442,52 +243,6 @@ if EID.isRepentance then
 				if multiplier == 3 then goldenDesc = EID:getDescriptionEntry("tripledTrinket") or ""
 				elseif multiplier == 4 then goldenDesc = EID:getDescriptionEntry("quadrupledTrinket") end
 				descObj.Description = descObj.Description .. "#" .. "{{ColorGold}}"..goldenDesc
-			end
-		end
-		return descObj
-	end
-	
-	-- Handle Wild Card description addition
-	local function WildCardCallback(descObj)
-		for i = 1,#EID.coopAllPlayers do
-			local player = EID.coopAllPlayers[i]
-			local playerID = EID:getPlayerID(player, true)
-			local playerType = player:GetPlayerType()
-			if EID.WildCardEffects[playerID] then
-				EID:appendToDescription(descObj, "#")
-				
-				if #EID.coopAllPlayers > 1 then EID:appendToDescription(descObj, EID:GetPlayerIcon(playerType, "P" .. i .. ":") .. " ") end
-				if EID.WildCardPillColor[playerID] then -- show the correct pill color; unnecessary attention to detail but why not
-					EID:appendToDescription(descObj, "{{Pill" .. EID.WildCardPillColor[playerID] .. "}} {{NameOnly" .. EID.WildCardEffects[playerID] .. "}}")
-				else EID:appendToDescription(descObj, "{{Name" .. EID.WildCardEffects[playerID] .. "}}") end
-			end
-		end
-		return descObj
-	end
-	
-	-- Handle The Stars? description addition
-	local function TheStarsCallback(descObj)
-		EID:UpdateAllPlayerPassiveItems()
-		local modified = false
-		for i = 1,#EID.coopAllPlayers do
-			local player = EID.coopAllPlayers[i]
-			local playerID = EID:getPlayerID(player, true)
-			local playerType = player:GetPlayerType()
-			if EID.OldestItemIndex[playerID] and EID.RecentlyTouchedItems[playerID] then
-				local repetitions = player:HasCollectible(451) and 2 or 1 -- Tarot Cloth removes 2 items
-				for indexOffset = 0, repetitions - 1 do
-					local oldestItem = EID.RecentlyTouchedItems[playerID][EID.OldestItemIndex[playerID] + indexOffset]
-					if oldestItem then
-						-- when inside the item reminder's overview, wipe the description before appending the results
-						if EID.InsideSpecialDescriptions and not modified then
-							descObj.Description = ""
-							modified = true
-						end
-						EID:appendToDescription(descObj, "#")
-						if #EID.coopAllPlayers > 1 then EID:appendToDescription(descObj, EID:GetPlayerIcon(playerType, "P" .. i .. ":") .. " ") end
-						EID:appendToDescription(descObj, "{{NameC" .. oldestItem .. "}}")
-					end
-				end
 			end
 		end
 		return descObj
@@ -619,8 +374,6 @@ if EID.isRepentance then
 			
 		-- Card / Rune Callbacks
 		elseif descObj.ObjVariant == PickupVariant.PICKUP_TAROTCARD then
-			if descObj.ObjSubType == 80 then table.insert(callbacks, WildCardCallback) end
-			if descObj.ObjSubType == 73 then table.insert(callbacks, TheStarsCallback) end
 		-- Pill Callbacks
 		elseif descObj.ObjVariant == PickupVariant.PICKUP_PILL then
 			if EID.collectiblesOwned[654] then table.insert(callbacks, FalsePHDCallback) end
@@ -654,26 +407,11 @@ local function EIDConditionsAB(descObj)
 	local callbacks = {}
 
 	if EID.LuckFormulas[descObj.fullItemString] then table.insert(callbacks, LuckChanceCallback) end
-	local adjustedSubtype = EID:getAdjustedSubtype(descObj.ObjType, descObj.ObjVariant, descObj.ObjSubType)
-	local typeVarSub = descObj.ObjType.."."..descObj.ObjVariant.."."..adjustedSubtype
-	if EID.HealthUpData[typeVarSub] or EID.HealingItemData[typeVarSub] then table.insert(callbacks, HealthUpCallback) end
 	-- Collectible Pedestal Callbacks
 	if descObj.ObjVariant == PickupVariant.PICKUP_COLLECTIBLE then
 		if EID.Config["ItemCollectionIndicator"] and EID:requiredForCollectionPage(descObj.ObjSubType) then table.insert(callbacks, ItemCollectionPageCallback) end
 
-		if EID.SingleUseCollectibles[descObj.ObjSubType] then table.insert(callbacks, SingleUseCallback) end
-
 		if descObj.ObjSubType == 297 then table.insert(callbacks, PandorasBoxCallback) end
-
-		if EID.Config["DisplayVoidStatInfo"] then
-			if EID.collectiblesOwned[477] then table.insert(callbacks, VoidCallback) end
-			if EID.collectiblesOwned["5.300.41"] then table.insert(callbacks, BlackRuneCallback) end
-		end
-		
-	elseif descObj.ObjVariant == PickupVariant.PICKUP_TRINKET then
-		if descObj.ObjSubType == 80 then table.insert(callbacks, BlackFeatherCallback) end
-	elseif descObj.ObjVariant == PickupVariant.PICKUP_PILL then
-		table.insert(callbacks, VurpCallback)
 	end
 	return callbacks
 end

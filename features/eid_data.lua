@@ -543,11 +543,6 @@ EID.InlineIcons = {
 	["ItemPoolWoodenChest"] = {"ItemPools", 29, 11, 11, 0, 0},
 	["ItemPoolRottenBeggar"] = {"ItemPools", 30, 11, 11, 0, 0},
 
-	-- Wisps
-	["InnerWisp"] = {"Wisps", 0, 10, 9, 0, 2},
-	["MiddleWisp"] = {"Wisps", 1, 10, 9, 0, 2},
-	["OuterWisp"] = {"Wisps", 2, 10, 9, 0, 2},
-
 	-- Dice Faces
 	["DiceFace1"] = {"DiceFaces", 0, 14, 14, 0, -1},
 	["DiceFace2"] = {"DiceFaces", 1, 14, 14, 0, -1},
@@ -620,6 +615,7 @@ EID.InlineColors = {
 	["ColorError"] = function(_) return EID:getErrorColor() end,
 	["ColorObjName"] = function(_) return EID:getNameColor() end,
 	["ColorReset"] = function(_) return EID.LastRenderCallColor end,
+	["ColorCursor"] = KColor(1, 0, 0, 1),
 	-- Basic Colors
 	["ColorEIDText"] = KColor(1, 1, 1, 1),
 	["ColorEIDError"] = KColor(1, 0.4, 0.4, 1),
@@ -907,11 +903,6 @@ EID.blankCardHidden = {[32]=true,[33]=true,[34]=true,[35]=true,[36]=true,[37]=tr
 -- Cards that are treated as runes
 EID.runeIDs = {[32]=true,[33]=true,[34]=true,[35]=true,[36]=true,[37]=true,[38]=true,[39]=true,[40]=true,[41]=true,[55]=true,[81]=true,[82]=true,[83]=true,[84]=true,[85]=true,[86]=true,[87]=true,[88]=true,[89]=true,[90]=true,[91]=true,[92]=true,[93]=true,[94]=true,[95]=true,[96]=true,[97]=true,}
 
--- "Evil" item IDs for Black Feather
-EID.blackFeatherItems = {[215]=true,[216]=true,[230]=true,[260]=true,[262]=true,[339]=true,[344]=true}
-if EID.isRepentance then EID.blackFeatherItems[654] = true end
-EID.blackFeatherTrinkets = {[17]=true,[22]=true}
-
 -- Luck formulas
 EID.LuckFormulas = {}
 EID.LuckFormulas["5.100.219"] = function(luck) return math.min(100 / (10 - math.floor(luck*0.3)), 50) end -- Old Bandage: Base 10%, 50% at 26.67 Luck
@@ -931,24 +922,6 @@ if EID.isRepentance then
 	EID.HealingItemData["5.100.621"] = true; EID.HealingItemData["5.70.46"] = true;
 
 	EID.BloodUpData = {["5.70.10"] = 2, ["5.350.156"] = 2, ["5.300.12"] = 2, ["5.300.59"] = 4, [12] = 12, [15] = 12, [16] = 12, [22] = 4, [23] = 4, [24] = 4, [25] = 4, [26] = 4, [75] = 4, [92] = 4, [101] = 4, [119] = 10, [121] = 2, [129] = 4, [138] = 4, [176] = 4, [182] = 12, [184] = 4, [189] = 12, [193] = 4, [217] = 2, [218] = 4, [226] = 4, [253] = 4, [307] = 4, [312] = 4, [314] = 4, [334] = 6, [342] = 4, [346] = 4, [354] = 4, [428] = 12, [456] = 4, [535] = 2, [573] = 12, [591] = 4, [594] = 1, [614] = 10, [621] = 12, [664] = 12, [669] = 12, [707] = 4 }
-end
-
-EID.SingleUseCollectibles = {
-	[127] = true, -- Forget Me Now
-	[297] = true, -- Pandora's Box
-	[347] = true, -- Diplopia
-	[475] = true, -- Plan C
-	[483] = true, -- Mama Mega!
-	[490] = true, -- Eden's Soul
-	[515] = true, -- Mystery Gift
-	[536] = true, -- Sacrificial Altar
-}
-if EID.isRepentance then
-	EID.SingleUseCollectibles[577] = true -- Damocles
-	EID.SingleUseCollectibles[585] = true -- Alabaster Box
-	EID.SingleUseCollectibles[622] = true -- Genesis
-	EID.SingleUseCollectibles[628] = true -- Death Certificate
-	EID.SingleUseCollectibles[636] = true -- R Key
 end
 
 ---------------- BAG OF CRAFTING DATA ------------------
