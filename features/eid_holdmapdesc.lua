@@ -489,10 +489,17 @@ end
 
 -- Handle scroll inputs
 function EID:ItemReminderHandleInputs()
-	if EID.Config["ItemReminderEnabled"] and EID.Config["ItemReminderDisplayMode"] ~= "Classic" and EID.holdTabCounter >= 30 and EID.TabDescThisFrame == false and EID.holdTabPlayer ~= nil then
+	if EID.Config["ItemReminderEnabled"] and EID.Config["ItemReminderDisplayMode"] ~= "Classic" and (EID.isSummaryPermanentlyOpen or (EID.holdTabCounter >= 30 and EID.TabDescThisFrame == false and EID.holdTabPlayer ~= nil)) then
 		if EID.Config["ItemReminderDisableInputs"] then EID.holdTabPlayer.ControlsCooldown = 2 end
 
-		if Input.IsActionTriggered(EID.Config["ItemReminderNavigateLeftButton"], EID.holdTabPlayer.ControllerIndex) and Isaac.GetTime() - lastInputTime > 50 then
+		local controllerId = 0
+		if EID.isSummaryPermanentlyOpen then
+			controllerId = 0
+		else
+			controllerId = EID.holdTabPlayer.ControllerIndex
+		end
+
+		if Input.IsActionTriggered(EID.Config["ItemReminderNavigateLeftButton"], controllerId) and Isaac.GetTime() - lastInputTime > 50 then
 			EID.ItemReminderSelectedCategory = (EID.ItemReminderSelectedCategory - 1) % #EID.ItemReminderCategories
 			if EID.Config["ItemReminderDisplayMode"] == "NoOverview" and EID.ItemReminderSelectedCategory == 0 then
 				EID.ItemReminderSelectedCategory = #EID.ItemReminderCategories - 1
@@ -501,14 +508,14 @@ function EID:ItemReminderHandleInputs()
 			EID.ForceRefreshCache = true
 			lastInputTime = Isaac.GetTime()
 			lastScrollDirection = -1
-		elseif Input.IsActionTriggered(EID.Config["ItemReminderNavigateRightButton"], EID.holdTabPlayer.ControllerIndex) and Isaac.GetTime() - lastInputTime > 50 then
+		elseif Input.IsActionTriggered(EID.Config["ItemReminderNavigateRightButton"], controllerId) and Isaac.GetTime() - lastInputTime > 50 then
 			EID.ItemReminderSelectedCategory = (EID.ItemReminderSelectedCategory + 1) % #EID.ItemReminderCategories
 			if EID.Config["ItemReminderDisplayMode"] == "NoOverview" and EID.ItemReminderSelectedCategory == 0 then EID.ItemReminderSelectedCategory = 1 end
 
 			EID.ForceRefreshCache = true
 			lastInputTime = Isaac.GetTime()
 			lastScrollDirection = 1
-		elseif Input.IsActionTriggered(EID.Config["ItemReminderNavigateUpButton"], EID.holdTabPlayer.ControllerIndex) and Isaac.GetTime() - lastInputTime > 50 then
+		elseif Input.IsActionTriggered(EID.Config["ItemReminderNavigateUpButton"], controllerId) and Isaac.GetTime() - lastInputTime > 50 then
 			if not EID.ItemReminderDisplayingScrollbar then
 				EID.ItemReminderSelectedPlayer = (EID.ItemReminderSelectedPlayer - 1) % #EID:ItemReminderGetAllPlayers()
 			else
@@ -517,7 +524,7 @@ function EID:ItemReminderHandleInputs()
 
 			EID.ForceRefreshCache = true
 			lastInputTime = Isaac.GetTime()
-		elseif Input.IsActionTriggered(EID.Config["ItemReminderNavigateDownButton"], EID.holdTabPlayer.ControllerIndex) and Isaac.GetTime() - lastInputTime > 50 then
+		elseif Input.IsActionTriggered(EID.Config["ItemReminderNavigateDownButton"], controllerId) and Isaac.GetTime() - lastInputTime > 50 then
 			if not EID.ItemReminderDisplayingScrollbar then
 				EID.ItemReminderSelectedPlayer = (EID.ItemReminderSelectedPlayer + 1) % #EID:ItemReminderGetAllPlayers()
 			else

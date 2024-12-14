@@ -53,6 +53,10 @@ EID.UserConfig = {
 	-- Look into the AB+ or Repentance documentation for the key names here: https://wofsauge.github.io/IsaacDocs/rep/enums/Keyboard.html
 	-- Default = Keyboard.KEY_F3
 	["EditKey"] = Keyboard.KEY_F3,
+	-- Set the keybind to toggle the display of the owned items
+	-- Look into the AB+ or Repentance documentation for the key names here: https://wofsauge.github.io/IsaacDocs/rep/enums/Keyboard.html
+	-- Default = Keyboard.KEY_F4
+	["ItemOverviewKey"] = Keyboard.KEY_F4,
 	-- Set the controller binding to toggle the description display
 	-- Use the controller names here: https://github.com/wofsauge/External-Item-Descriptions/blob/master/mod_config_menu.lua#L1 or a number
 	-- Controller.STICK_LEFT and Controller.STICK_RIGHT (pushing the sticks in), which aren't used in-game with default controls
@@ -106,7 +110,7 @@ EID.UserConfig = {
 	--	"default": text will be displayed in the top left of the screen
 	--	"local": text will be displayed under the described object
 	-- Default = "default"
-	["DisplayMode"] = "default",
+	["DisplayMode"] = "local",
 	-- Change the size of the info boxes for local mode
 	-- Default = 0.5
 	["LocalModeSize"] = 0.5,
@@ -265,7 +269,7 @@ EID.UserConfig = {
 	["ItemReminderOverviewHideAfterRows"] = 2,
 	-- Number of entries to display per category of the item description.
 	-- Default = 3
-	["ItemReminderMaxEntriesCount"] = 3,
+	["ItemReminderMaxEntriesCount"] = 1,
 
 
 	 ---------- Save Game Options ------------
@@ -359,7 +363,7 @@ EID.DefaultConfig = {
 	["XPosition"] = 60,
 	["YPosition"] = 45,
 	["LineHeight"] = 11,
-	["DisplayMode"] = "default",
+	["DisplayMode"] = "local",
 	["ColorblindMode"] = 0,
 	["LocalModeSize"] = 0.5,
 	["LocalModeCentered"] = true,
@@ -370,6 +374,7 @@ EID.DefaultConfig = {
 	["Indicator"] = "arrow",
 	["HideKey"] = Keyboard.KEY_F2,
 	["EditKey"] = Keyboard.KEY_F3,
+	["ItemOverviewKey"] = Keyboard.KEY_F4,
 	["HideButton"] = -1,
 	["InitiallyHidden"] = false,
 	["HideInBattle"] = true,
@@ -416,7 +421,7 @@ EID.DefaultConfig = {
 	["ItemReminderNavigateUpButton"] = ButtonAction.ACTION_SHOOTUP,
 	["ItemReminderNavigateDownButton"] = ButtonAction.ACTION_SHOOTDOWN,
 	["ItemReminderOverviewHideAfterRows"] = 2,
-	["ItemReminderMaxEntriesCount"] = 5,
+	["ItemReminderMaxEntriesCount"] = 1,
 	
 	["SaveGameNumber"] = 0,
 	["HideUncollectedItemDescriptions"] = false,

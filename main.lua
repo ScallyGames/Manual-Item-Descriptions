@@ -20,6 +20,8 @@ EID.DefaultConfig.Version = EID.Config.Version
 EID.isHidden = false
 EID.isEditing = false
 EID.wasEditing = false
+EID.isSummaryPermanentlyOpen = false
+EID.isShowingReminder = false
 EID.currentEditingIndex = 0
 EID.currentCursorPosition = 0
 EID.editingKeyboardActions = {
@@ -326,7 +328,7 @@ function EID:disableEditMode()
 	end
 end
 
-function EID:onActionTriggeredOverride(entity, hook, button)
+function EID:onActionTriggeredOverride(entity, hook, action)
 	-- This is important to not block opening the menu which would be quite disrupting
 	-- While this could possibly be checked in the update loop, checking it here seems safer to avoid any override of pause press
 	if 
@@ -336,27 +338,38 @@ function EID:onActionTriggeredOverride(entity, hook, button)
 		Input.IsActionTriggered(ButtonAction.ACTION_PAUSE, 3)
 	then
 		EID:disableEditMode()
+		EID.isSummaryPermanentlyOpen = false
 	end
 
-	if not EID.isEditing then return nil end
+	if EID.isEditing then
+		return false
+	end
 
-	return false
+	if EID.isSummaryPermanentlyOpen and action ~= ButtonAction.ACTION_DROP then -- allow drop action for switching active or pocket item
+		return false
+	end
+
+	return nil
 end
 EID:AddCallback(ModCallbacks.MC_INPUT_ACTION, EID.onActionTriggeredOverride, InputHook.IS_ACTION_TRIGGERED)
 
 
-function EID:onActionPressedOverride(entity, hook, button)
-	if not EID.isEditing then return nil end
+function EID:onActionPressedOverride(entity, hook, action)
+	if EID.isEditing or EID.isSummaryPermanentlyOpen then
+		return false
+	end
 
-	return false
+	return nil
 end
 EID:AddCallback(ModCallbacks.MC_INPUT_ACTION, EID.onActionPressedOverride, InputHook.IS_ACTION_PRESSED)
 
 
-function EID:getActionValueOverride(entity, hook, button)
-	if not EID.isEditing then return nil end
+function EID:getActionValueOverride(entity, hook, action)
+	if EID.isEditing then
+		return 0.0
+	end
 
-	return 0.0
+	return nil
 end
 EID:AddCallback(ModCallbacks.MC_INPUT_ACTION, EID.getActionValueOverride, InputHook.GET_ACTION_VALUE)
 
@@ -543,8 +556,10 @@ function EID:printDescriptions(useCached)
 	end
 
 	-- Print our cached descriptions
-	for _,indicator in ipairs(EID.CachedIndicators) do
-		EID:renderIndicator(indicator[1], indicator[2])
+	if not EID.isShowingReminder then 
+		for _,indicator in ipairs(EID.CachedIndicators) do
+			EID:renderIndicator(indicator[1], indicator[2])
+		end
 	end
 	for i,oldDesc in ipairs(EID.previousDescs) do
 		EID:printDescription(oldDesc, i)
@@ -1216,8 +1231,13 @@ function EID:OnRender()
 	EID.entitiesToPrint = {}
 	alwaysUseLocalMode = false
 
-	-- temporary attempt to keep thing mostly in local mode
-	alwaysUseLocalMode = true
+	-- just trigger checks on all inputs to correctly absorb inputs in MC_INPUT_ACTION callback
+	-- not needed if EID.isEditing since the editing logic already does it
+	if EID.isSummaryPermanentlyOpen and not EID.isEditing then
+		for keyCode, _ in pairs(EID.KeyboardMapping) do
+			Input.IsButtonTriggered(keyCode, 0)
+		end
+	end
 
 	-- if frames were skipped (due to EID being hidden / in battle / in options), wipe the desc cache
 	if EID.GameRenderCount > prevPrintFrame + 1 then
@@ -1238,6 +1258,9 @@ function EID:OnRender()
 			else
 				EID:enableEditMode()
 			end
+		end
+		if Input.IsButtonTriggered(EID.Config["ItemOverviewKey"], 0) then
+			EID.isSummaryPermanentlyOpen = not EID.isSummaryPermanentlyOpen
 		end
 	end
 	EID.TabPreviewID = 0
@@ -1387,7 +1410,7 @@ function EID:OnRender()
 				inRangeEntities = { EID.lastDescriptionEntity }
 			end
 			-- Only display the indicator for the primary (closest / crafting) description
-			if EID.lastDescriptionEntity then
+			if EID.lastDescriptionEntity and not EID.isShowingReminder then
 				EID:renderIndicator(EID.lastDescriptionEntity, EID.controllerIndexes[player.ControllerIndex] or 1)
 				table.insert(EID.CachedIndicators, {EID.lastDescriptionEntity, EID.controllerIndexes[player.ControllerIndex]})
 			end
@@ -1529,8 +1552,10 @@ function EID:OnRender()
 		end
 	end
 
+	EID.isShowingReminder = false
 	-- handle showing the Hold Map Helper description
-	if EID.Config["ItemReminderEnabled"] and EID.holdTabCounter >= 30 and EID.TabDescThisFrame == false and EID.holdTabPlayer ~= nil then
+	if EID.isSummaryPermanentlyOpen or (EID.Config["ItemReminderEnabled"] and EID.holdTabCounter >= 30 and EID.TabDescThisFrame == false and EID.holdTabPlayer ~= nil) then
+		EID.isShowingReminder = true
 		EID:ItemReminderHandleInputs()
 		local demoDescObj = EID:getDescriptionObj(-999, -1, 1)
 		demoDescObj.PermanentTextEnglish = EID:getDescriptionEntryEnglish("ItemReminder", "Title")
